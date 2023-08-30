@@ -1,43 +1,6 @@
 version: "3.4"
 
 services:
-  carla:
-    image: carlasim/carla:0.9.13
-    container_name: carla
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    network_mode: host
-    command: /bin/bash ./CarlaUE4.sh -RenderOffScreen
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-  carla-ros-bridge:
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile.ros-bridge
-      network: host
-    image: carla_ros_bridge:${ADORE_IF_CARLA_TAG}
-    container_name: carla_ros_bridge
-    depends_on:
-      - carla
-    command: /bin/bash -c "source /opt/carla-ros-bridge/install/setup.bash; source /opt/carla/setup.bash; roslaunch /opt/carla-ros-bridge/launchfiles/carla_rosbridge_with_cybertruck_as_ego_vehicle.launch"
-    #command: tail -F anything
-    #stdin_open: true 
-    #tty: true
-    runtime: nvidia
-    privileged: true
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./:/tmp/adore_if_carla/
-    network_mode: host
-    environment:
-      - DISPLAY
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=all
   adore_if_carla:
     build:
       context: .
