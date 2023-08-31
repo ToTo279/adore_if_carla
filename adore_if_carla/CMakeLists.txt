@@ -62,6 +62,23 @@ find_package(plotlablib CONFIG REQUIRED)
 find_package(cppzmq CONFIG REQUIRED)
 find_package(ZeroMQ CONFIG REQUIRED)
 
+find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    std_msgs
+    geometry_msgs
+    nav_msgs
+    adore_if_ros_msg
+    dsrc_v2_dsrc
+    denm_v2_denm_pdu_descriptions
+    dsrc_v2_mapem_pdu_descriptions
+    dsrc_v2_spatem_pdu_descriptions
+    dsrc_v2_srem_pdu_descriptions
+    cpm_v1_19_cpm_pdu_descriptions
+    mcm_dmove_mcm_dmove
+    coordinate_conversion
+    plotlablib
+)
+
 #generate_messages(
 #    DEPENDENCIES
 #    std_msgs  # Or other packages containing msgs
@@ -107,6 +124,11 @@ target_sources(ackermanncommand2carla_node PRIVATE src/ackermanncommand2carla.cp
 target_include_directories(ackermanncommand2carla_node PRIVATE include ${catkin_INCLUDE_DIRS})
 target_link_libraries(ackermanncommand2carla_node PRIVATE ${catkin_LIBRARIES})
 
+add_executable(trafficlights2adore_node)
+target_sources(trafficlights2adore_node PRIVATE src/trafficlights2adore.cpp)
+target_include_directories(trafficlights2adore_node PRIVATE include ${catkin_INCLUDE_DIRS})
+target_link_libraries(trafficlights2adore_node PRIVATE ${catkin_LIBRARIES})
+
 add_executable(plot_longitudinal_control_info_node src/plot_longitudinal_control_info.cpp)
 target_include_directories(plot_longitudinal_control_info_node PRIVATE include ${catkin_INCLUDE_DIRS})
 target_link_libraries(plot_longitudinal_control_info_node
@@ -122,6 +144,7 @@ install(
   controlcommand2carla_node
   ackermanncommand2carla_node
   clock2simtime_node
+  trafficlights2adore_node
   plot_longitudinal_control_info_node
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
