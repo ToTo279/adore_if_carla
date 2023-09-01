@@ -19,7 +19,7 @@
 //#include <std_msgs/Float64.h>
 //#include <rosgraph_msgs/Clock.h>
 
-#include <dsrc_v2_mapem_pdu_descriptions/MAPEM.h>
+#include <dsrc_v2_mapem_pdu_descriptions/MAPEM.h>   //  Noch CMake anpassen!!!
 #include <dsrc_v2_spatem_pdu_descriptions/SPATEM.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -79,7 +79,7 @@ namespace adore
             {
                 uint32_t id;
                 geometry_msgs::Pose transform;
-                CarlaBoundingBox trigger_volume;
+                CarlaBoundingBox trigger_volume;    // !!!
             };
             
             CarlaTrafficLightStatus traffic_lights_status[];
@@ -95,10 +95,10 @@ namespace adore
             }
             void initROSConnections()
             {
-                publisher_spatem_sim_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("/SIM/v2x/SPATEM", 1);
-                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPATEM>("/v2x/incoming/SPATEM", 1);
-                publisher_mapem_sim_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("/SIM/v2x/MAPEM", 1);
-                publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::MAPEM>("/v2x/incoming/MAPEM", 1);
+                publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
+                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPATEM>("v2x/incoming/SPATEM", 1);
+                publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
+                publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::MAPEM>("v2x/incoming/MAPEM", 1);
 
             }
 

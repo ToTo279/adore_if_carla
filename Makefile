@@ -62,7 +62,7 @@ install_nvidia_docker2: ## Install nvidia-docker2 in Ubuntu
 	bash install_nvidia_docker2.sh 
 
 .PHONY: _build
-_build: set_env build_adore_if_ros_msg build_plotlablib
+_build: set_env build_adore_if_ros_msg build_plotlablib build_v2x_if_ros_msg build_adore_v2x_sim
 	rm -rf "${ROOT_DIR}/${PROJECT}/build"
 	rm -rf "${ROOT_DIR}/${PROJECT}/launch"
 	cd "${ROOT_DIR}" && docker compose build

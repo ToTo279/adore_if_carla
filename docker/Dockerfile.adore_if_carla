@@ -12,6 +12,8 @@ FROM adore_if_ros_msg:${ADORE_IF_ROS_MSG_TAG} AS adore_if_ros_msg
 FROM plotlablib:${PLOTLABLIB_TAG} AS plotlablib
 FROM libzmq:latest AS libzmq
 FROM cppzmq:latest AS cppzmq
+FROM v2x_if_ros_msg:${V2X_IF_ROS_MSG_TAG} AS v2x_if_ros_msg
+FROM adore_v2x_sim:${ADORE_V2X_SIM_TAG} AS adore_v2x_sim
 
 FROM ros:noetic-ros-core-focal AS adore_if_carla_requirements_base
 
@@ -46,7 +48,15 @@ RUN mkdir -p "${INSTALL_PREFIX}"
 ARG LIB=adore_if_ros_msg
 COPY --from=adore_if_ros_msg /tmp/${LIB} /tmp/${LIB}
 WORKDIR /tmp/${LIB}/${LIB}/build
+RUN cmake --install . --prefix ${INSTALL_PREFIX}
+
+COPY --from=v2x_if_ros_msg /tmp/v2x_if_ros_msg /tmp/v2x_if_ros_msg
+WORKDIR /tmp/v2x_if_ros_msg/v2x_if_ros_msg/build
 RUN cmake --install . --prefix ${INSTALL_PREFIX} 
+
+COPY --from=adore_v2x_sim /tmp/adore_v2x_sim /tmp/adore_v2x_sim
+WORKDIR /tmp/adore_v2x_sim/adore_v2x_sim/build
+RUN cmake --install . --prefix ${INSTALL_PREFIX}
 
 COPY files external/ros-bridge/carla_msgs/ /tmp/carla_msgs/
 SHELL ["/bin/bash", "-c"]

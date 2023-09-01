@@ -56,18 +56,9 @@ find_package(catkin REQUIRED COMPONENTS
     carla_msgs
     roscpp
     ackermann_msgs
-)
-
-find_package(plotlablib CONFIG REQUIRED)
-find_package(cppzmq CONFIG REQUIRED)
-find_package(ZeroMQ CONFIG REQUIRED)
-
-find_package(catkin REQUIRED COMPONENTS
-    roscpp
+    #new
     std_msgs
-    geometry_msgs
     nav_msgs
-    adore_if_ros_msg
     dsrc_v2_dsrc
     denm_v2_denm_pdu_descriptions
     dsrc_v2_mapem_pdu_descriptions
@@ -77,7 +68,19 @@ find_package(catkin REQUIRED COMPONENTS
     mcm_dmove_mcm_dmove
     coordinate_conversion
     plotlablib
+    adore_v2x_sim
+    v2x_if_ros_msg
 )
+
+
+find_package(adore_v2x_sim CONFIG REQUIRED)
+find_package(v2x_if_ros_msg CONFIG REQUIRED)
+
+find_package(plotlablib CONFIG REQUIRED)
+find_package(cppzmq CONFIG REQUIRED)
+find_package(ZeroMQ CONFIG REQUIRED)
+
+
 
 #generate_messages(
 #    DEPENDENCIES
@@ -90,7 +93,7 @@ catkin_package(
   #INCLUDE_DIRS include
   LIBRARIES adore_if_carla
   CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs ackermann_msgs
-  CATKIN_DEPENDS adore_if_ros_msg
+  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg
 )
 
 include_directories(
@@ -127,7 +130,12 @@ target_link_libraries(ackermanncommand2carla_node PRIVATE ${catkin_LIBRARIES})
 add_executable(trafficlights2adore_node)
 target_sources(trafficlights2adore_node PRIVATE src/trafficlights2adore.cpp)
 target_include_directories(trafficlights2adore_node PRIVATE include ${catkin_INCLUDE_DIRS})
-target_link_libraries(trafficlights2adore_node PRIVATE ${catkin_LIBRARIES})
+target_link_libraries(trafficlights2adore_node
+                        PRIVATE
+                          ${catkin_LIBRARIES})
+                          v2x_if_ros_msg::v2x_if_ros_msg
+                          adore_v2x_sim::adore_v2x_sim
+
 
 add_executable(plot_longitudinal_control_info_node src/plot_longitudinal_control_info.cpp)
 target_include_directories(plot_longitudinal_control_info_node PRIVATE include ${catkin_INCLUDE_DIRS})
