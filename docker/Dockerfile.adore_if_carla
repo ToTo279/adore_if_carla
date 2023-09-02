@@ -4,7 +4,8 @@ ARG REQUIREMENTS_FILE="requirements.${PROJECT}.build.ubuntu20.04.system"
 ARG ADORE_IF_ROS_MSG_TAG=latest
 ARG LIBADORE_TAG=latest
 ARG PLOTLABLIB_TAG=latest
-
+ARG V2X_IF_ROS_MSG_TAG=latest
+ARG ADORE_V2X_SIM_TAG=latest
 
 FROM carlasim/carla:0.9.13 AS carlasim_carla
 FROM adore_if_ros_msg:${ADORE_IF_ROS_MSG_TAG} AS adore_if_ros_msg

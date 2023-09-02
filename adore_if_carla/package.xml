@@ -57,6 +57,8 @@
   <depend>adore_if_ros_msg</depend>
   <depend>carla_msgs</depend>
   <depend>ackermann_msgs</depend>
+  <depend>v2x_if_ros_msg</depend>
+  <depend>adore_v2x_sim</depend>
   <depend>derived_object_msgs</depend>
   <!-- <depend>itsg5_common</depend>
   <depend>v2xsim</depend> -->

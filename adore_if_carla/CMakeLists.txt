@@ -42,6 +42,10 @@ list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 set(PLOTLABLIB_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../plotlablib/plotlablib/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${PLOTLABLIB_CMAKE_INSTALL_PATH}")
 
+set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../v2x_if_ros_msg/v2x_if_ros_msg/build/install")
+list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
+
+
 
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cppzmq/build/install/share/cmake/cppzmq")
 #/share/cmake/cppzmq/cppzmqConfig.cmake
@@ -56,25 +60,10 @@ find_package(catkin REQUIRED COMPONENTS
     carla_msgs
     roscpp
     ackermann_msgs
-    #new
-    std_msgs
-    nav_msgs
-    dsrc_v2_dsrc
-    denm_v2_denm_pdu_descriptions
-    dsrc_v2_mapem_pdu_descriptions
-    dsrc_v2_spatem_pdu_descriptions
-    dsrc_v2_srem_pdu_descriptions
-    cpm_v1_19_cpm_pdu_descriptions
-    mcm_dmove_mcm_dmove
-    coordinate_conversion
-    plotlablib
-    adore_v2x_sim
-    v2x_if_ros_msg
 )
 
 
 find_package(adore_v2x_sim CONFIG REQUIRED)
-find_package(v2x_if_ros_msg CONFIG REQUIRED)
 
 find_package(plotlablib CONFIG REQUIRED)
 find_package(cppzmq CONFIG REQUIRED)
@@ -133,8 +122,6 @@ target_include_directories(trafficlights2adore_node PRIVATE include ${catkin_INC
 target_link_libraries(trafficlights2adore_node
                         PRIVATE
                           ${catkin_LIBRARIES})
-                          v2x_if_ros_msg::v2x_if_ros_msg
-                          adore_v2x_sim::adore_v2x_sim
 
 
 add_executable(plot_longitudinal_control_info_node src/plot_longitudinal_control_info.cpp)
