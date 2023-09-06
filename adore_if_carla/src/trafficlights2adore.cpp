@@ -108,8 +108,10 @@ namespace adore
             void initROSConnections()
             {
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
-                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
+                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPAT>("v2x/incoming/SPATEM", 1);
+                //publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
+                //publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::MAPEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
 
             }
@@ -172,22 +174,52 @@ namespace adore
             void sendSPATEMSim()
             {
                 adore_v2x_sim::SimSPATEM out_msg;
+                /*  TO DO
+                out_msg.meta =
+                out_msg.data ENTSPRICHT dsrc_v2_spatem_pdu_descriptions::SPATEM
+                */
 
+                publisher_spatem_sim_.publish(out_msg);
             }
             void sendSPATEM()
             {
                 dsrc_v2_spatem_pdu_descriptions::SPATEM out_msg;
-                //dsrc_v2_dsrc::SPAT out_msg;
 
+                /*  TO DO
+                out_msg.header = 
+                out_msg.spat.timeStamp = 
+                out_msg.spat.name = 
+                out_msg.spat.intersections = 
+                */
+
+                publisher_spatem_.publish(out_msg);
             }
             void sendMAPEMSim()
             {
                 adore_v2x_sim::SimMAPEM out_msg;
+                /*  TO DO
+                out_msg.meta =
+                out_msg.data ENTSPRICHT dsrc_v2_mapem_pdu_descriptions::MAPEM
+                */
 
+                publisher_mapem_sim_.publish(out_msg);
             }
             void sendMAPEM()
             {
                 dsrc_v2_mapem_pdu_descriptions::MAPEM out_msg;
+                /*  TO DO
+                out_msg.header = 
+                out_msg.map.timeStamp =
+                out_msg.map.msgIssueRevision =
+                out_msg.map.layerType =
+                out_msg.map.layerID =
+                out_msg.map.intersections =
+                out_msg.map.roadSegments =
+                out_msg.map.dataParameters =
+                out_msg.map.restrictionList =
+                */
+
+                publisher_mapem_.publish(out_msg);
             }
 
         };
