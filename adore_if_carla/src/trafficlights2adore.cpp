@@ -27,6 +27,7 @@
 #include <carla_msgs/CarlaTrafficLightStatus.h>
 #include <carla_msgs/CarlaTrafficLightInfoList.h>
 #include <carla_msgs/CarlaTrafficLightInfo.h>
+#include <carla_msgs/CarlaBoundingBox.h>
 #include <geometry_msgs/Pose.h>
 #include <adore_v2x_sim/SimMAPEM.h>
 #include <adore_v2x_sim/SimSPATEM.h>
@@ -88,7 +89,7 @@ namespace adore
             {
                 uint32_t id;
                 geometry_msgs::Pose transform;
-                //CarlaBoundingBox trigger_volume;    // !!!
+                carla_msgs::CarlaBoundingBox trigger_volume;    
             };
             
             std::vector<CarlaTrafficLightStatus> traffic_lights_status;
@@ -148,7 +149,7 @@ namespace adore
                     adore::adore_if_carla::Trafficlights2Adore::CarlaTrafficLightInfo info;
                     info.id = carla_traffic_light_info.id;
                     info.transform = carla_traffic_light_info.transform;
-                    //info.trigger_volume = carla_traffic_light_info_.trigger_volume;
+                    info.trigger_volume = carla_traffic_light_info.trigger_volume;
 
                     traffic_lights_info.push_back(info);
                 }
@@ -161,7 +162,7 @@ namespace adore
                     if (traffic_lights_info[i].id == carla_traffic_light_info_.id)
                     {
                         traffic_lights_info[i].transform = carla_traffic_light_info_.transform;
-                        //traffic_lights_info[i].trigger_volume = carla_traffic_light_info_.trigger_volume;
+                        traffic_lights_info[i].trigger_volume = carla_traffic_light_info_.trigger_volume;
                         break;
                     }
                 }
