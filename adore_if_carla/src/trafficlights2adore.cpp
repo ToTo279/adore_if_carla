@@ -32,6 +32,7 @@
 #include <adore_v2x_sim/SimMAPEM.h>
 #include <adore_v2x_sim/SimSPATEM.h>
 //#include <geometry_msgs/Twist.h>
+#include <dsrc_v2_dsrc/MapData.h>
 
 /**
  * This nodes ...
@@ -107,7 +108,7 @@ namespace adore
             void initROSConnections()
             {
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
-                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPAT>("v2x/incoming/SPATEM", 1);
+                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
                 publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
 
@@ -170,17 +171,18 @@ namespace adore
 
             void sendSPATEMSim()
             {
-                dsrc_v2_spatem_pdu_descriptions::SPATEM out_msg;
+                adore_v2x_sim::SimSPATEM out_msg;
 
             }
             void sendSPATEM()
             {
-                dsrc_v2_dsrc::SPAT out_msg;
+                dsrc_v2_spatem_pdu_descriptions::SPATEM out_msg;
+                //dsrc_v2_dsrc::SPAT out_msg;
 
             }
             void sendMAPEMSim()
             {
-                dsrc_v2_mapem_pdu_descriptions::MAPEM out_msg;
+                adore_v2x_sim::SimMAPEM out_msg;
 
             }
             void sendMAPEM()
