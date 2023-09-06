@@ -19,9 +19,18 @@
 //#include <std_msgs/Float64.h>
 //#include <rosgraph_msgs/Clock.h>
 
-#include <dsrc_v2_mapem_pdu_descriptions/MAPEM.h>   //  Noch CMake anpassen!!!
+#include <dsrc_v2_mapem_pdu_descriptions/MAPEM.h>
 #include <dsrc_v2_spatem_pdu_descriptions/SPATEM.h>
 //#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <vector>
+#include <carla_msgs/CarlaTrafficLightStatusList.h>
+#include <carla_msgs/CarlaTrafficLightStatus.h>
+#include <carla_msgs/CarlaTrafficLightInfoList.h>
+#include <carla_msgs/CarlaTrafficLightInfo.h>
+#include <geometry_msgs/Pose.h>
+#include <adore_v2x_sim/SimMAPEM.h>
+#include <adore_v2x_sim/SimSPATEM.h>
+//#include <geometry_msgs/Twist.h>
 
 /**
  * This nodes ...
@@ -79,11 +88,12 @@ namespace adore
             {
                 uint32_t id;
                 geometry_msgs::Pose transform;
-                CarlaBoundingBox trigger_volume;    // !!!
+                //CarlaBoundingBox trigger_volume;    // !!!
             };
             
-            CarlaTrafficLightStatus traffic_lights_status[];
-            CarlaTrafficLightInfo traffic_lights_info[];
+            std::vector<CarlaTrafficLightStatus> traffic_lights_status;
+            std::vector<CarlaTrafficLightInfo> traffic_lights_info;
+
             
 
             void initSim()
@@ -96,16 +106,27 @@ namespace adore
             void initROSConnections()
             {
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
-                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPATEM>("v2x/incoming/SPATEM", 1);
+                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPAT>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
-                publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::MAPEM>("v2x/incoming/MAPEM", 1);
+                publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
 
             }
+
 
             void receiveTrafficLightsStatusList(carla_msgs::CarlaTrafficLightStatusList carla_traffic_light_status_list_)
             {
-                traffic_lights_status = carla_traffic_light_status_list_.traffic_lights;
+                //traffic_lights_status.clear();
+
+                for (const auto& carla_traffic_light_status : carla_traffic_light_status_list_.traffic_lights)
+                {
+                    adore::adore_if_carla::Trafficlights2Adore::CarlaTrafficLightStatus status;
+                    status.id = carla_traffic_light_status.id;
+                    status.state = carla_traffic_light_status.state;
+
+                    traffic_lights_status.push_back(status);
+                }
             }
+
             void receiveTrafficLightsStatus(carla_msgs::CarlaTrafficLightStatus carla_traffic_light_status_)
             {
                 for (int i = 0; i < traffic_lights_status.size(); ++i)
@@ -117,10 +138,22 @@ namespace adore
                     }
                 }
             }
+
             void receiveTrafficLightsInfoList(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
             {
-                traffic_lights_info = carla_traffic_light_info_list_.traffic_lights;
+                traffic_lights_info.clear();
+
+                for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
+                {
+                    adore::adore_if_carla::Trafficlights2Adore::CarlaTrafficLightInfo info;
+                    info.id = carla_traffic_light_info.id;
+                    info.transform = carla_traffic_light_info.transform;
+                    //info.trigger_volume = carla_traffic_light_info_.trigger_volume;
+
+                    traffic_lights_info.push_back(info);
+                }
             }
+
             void receiveTrafficLightsInfo(carla_msgs::CarlaTrafficLightInfo carla_traffic_light_info_)
             {
                 for (int i = 0; i < traffic_lights_info.size(); ++i)
@@ -128,7 +161,7 @@ namespace adore
                     if (traffic_lights_info[i].id == carla_traffic_light_info_.id)
                     {
                         traffic_lights_info[i].transform = carla_traffic_light_info_.transform;
-                        traffic_lights_info[i].trigger_volume = carla_traffic_light_info_.trigger_volume;
+                        //traffic_lights_info[i].trigger_volume = carla_traffic_light_info_.trigger_volume;
                         break;
                     }
                 }
@@ -141,7 +174,7 @@ namespace adore
             }
             void sendSPATEM()
             {
-                dsrc_v2_dsrc::SPATEM out_msg;
+                dsrc_v2_dsrc::SPAT out_msg;
 
             }
             void sendMAPEMSim()
@@ -151,7 +184,7 @@ namespace adore
             }
             void sendMAPEM()
             {
-                dsrc_v2_dsrc::MAPEM out_msg;
+                dsrc_v2_mapem_pdu_descriptions::MAPEM out_msg;
             }
 
         };
