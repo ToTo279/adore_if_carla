@@ -32,7 +32,8 @@
 #include <adore_v2x_sim/SimMAPEM.h>
 #include <adore_v2x_sim/SimSPATEM.h>
 //#include <geometry_msgs/Twist.h>
-#include <dsrc_v2_dsrc/MapData.h>
+//#include <dsrc_v2_dsrc/MapData.h>
+#include <adore_if_ros_msg/TCDConnectionStateTrace.h>
 
 /**
  * This nodes ...
@@ -42,12 +43,21 @@ namespace adore
 {
     namespace adore_if_carla
     {
+
+        enum Betriebsmodus
+        {
+            V2XSIM,
+            V2XDIRECT,
+            DIRECT
+        };
+
         class Trafficlights2Adore
         {
           public:
             Trafficlights2Adore()
             {
             }
+
             void init(int argc, char** argv, double rate, std::string nodename)
             {
                 // Although the application has no periodically called functions, the rate is required for scheduling
@@ -57,6 +67,7 @@ namespace adore
                 initSim();
                 initROSConnections();
             }
+
             void run()
             {
                 while (n_->ok())
@@ -67,11 +78,15 @@ namespace adore
 
           private:
             ros::Publisher publisher_spatem_sim_;
-            ros::Publisher publisher_spatem_;
             ros::Publisher publisher_mapem_sim_;
+            ros::Publisher publisher_spatem_;
             ros::Publisher publisher_mapem_;
+            ros::Publisher publisher_direct_;
             
             ros::NodeHandle* n_;
+
+            int discard_age = 1;    //in [sec]
+            //double t_;
 
             struct CarlaTrafficLightStatus
             {
@@ -94,32 +109,47 @@ namespace adore
             };
             
             std::vector<CarlaTrafficLightStatus> traffic_lights_status;
+            std::vector<CarlaTrafficLightStatus> traffic_lights_status_old;
             std::vector<CarlaTrafficLightInfo> traffic_lights_info;
-
-            
+            std::vector<CarlaTrafficLightInfo> traffic_lights_info_old;
 
             void initSim()
             {
             }
+
             ros::NodeHandle* getRosNodeHandle()
             {
                 return n_;
             }
+
             void initROSConnections()
             {
+                //  V2XSIM
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
-                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::SPAT>("v2x/incoming/SPATEM", 1);
-                //publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
-                //publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_dsrc::MAPEM>("v2x/incoming/SPATEM", 1);
+                //  V2XDIRECT
+                publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
-
+                //  DIRECT
+                publisher_direct_ = getRosNodeHandle()->advertise<adore_if_ros_msg::TCDConnectionStateTrace>("ENV/tcd", 500, true);
             }
 
+            double getTime()
+            {
+                double time = 0;
+
+                using namespace std::chrono;
+                uint64_t ms = system_clock::now().time_since_epoch().count();
+                time = ((double)ms) / 1000;//000000;
+
+                return time;   
+            }
 
             void receiveTrafficLightsStatusList(carla_msgs::CarlaTrafficLightStatusList carla_traffic_light_status_list_)
             {
-                //traffic_lights_status.clear();
+                traffic_lights_status_old.clear();
+                traffic_lights_status_old = traffic_lights_status;
+                traffic_lights_status.clear();
 
                 for (const auto& carla_traffic_light_status : carla_traffic_light_status_list_.traffic_lights)
                 {
@@ -131,7 +161,7 @@ namespace adore
                 }
             }
 
-            void receiveTrafficLightsStatus(carla_msgs::CarlaTrafficLightStatus carla_traffic_light_status_)
+            /*void receiveTrafficLightsStatus(carla_msgs::CarlaTrafficLightStatus carla_traffic_light_status_)
             {
                 for (int i = 0; i < traffic_lights_status.size(); ++i)
                 {
@@ -141,10 +171,12 @@ namespace adore
                         break;
                     }
                 }
-            }
+            }*/
 
             void receiveTrafficLightsInfoList(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
             {
+                traffic_lights_info_old.clear();
+                traffic_lights_info_old = traffic_lights_info;
                 traffic_lights_info.clear();
 
                 for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
@@ -158,7 +190,7 @@ namespace adore
                 }
             }
 
-            void receiveTrafficLightsInfo(carla_msgs::CarlaTrafficLightInfo carla_traffic_light_info_)
+            /*void receiveTrafficLightsInfo(carla_msgs::CarlaTrafficLightInfo carla_traffic_light_info_)
             {
                 for (int i = 0; i < traffic_lights_info.size(); ++i)
                 {
@@ -169,6 +201,20 @@ namespace adore
                         break;
                     }
                 }
+            }*/
+
+            void sendDirect()
+            {
+                adore_if_ros_msg::TCDConnectionStateTrace out_msg;
+
+                /*  TO DO
+                out_msg.connection = 
+                out_msg.data.minEndTime =
+                out_msg.data.maxEndTime = 
+                out_msg.data.likelyTime = 
+                out_msg.data.state = 
+                */
+                publisher_direct_.publish(out_msg);
             }
 
             void sendSPATEMSim()
@@ -221,7 +267,6 @@ namespace adore
 
                 publisher_mapem_.publish(out_msg);
             }
-
         };
     }  // namespace adore_if_carla
 }  // namespace adore
