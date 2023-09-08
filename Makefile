@@ -18,7 +18,7 @@ include ${SUBMODULES_PATH}/ci_teststand/ci_teststand.mk
 
 
 ROS_BRIDGE_PATH:=${ROOT_DIR}/external/ros-bridge
-CARL_MSG_FILES:=$(wildcard $(ROS_BRIDGE_PATH)/carla_msgs/*)
+CARLA_MSG_FILES:=$(wildcard $(ROS_BRIDGE_PATH)/carla_msgs/*)
 .PHONY: init_submodules
 init_submodules:
 ifeq ($(CARLA_MSG_FILES),)

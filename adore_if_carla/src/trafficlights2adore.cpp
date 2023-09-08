@@ -65,6 +65,9 @@ namespace adore
                 ros::NodeHandle* n = new ros::NodeHandle();
                 n_ = n;
                 initSim();
+                bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
+                std::cout << "Objects2Adore: namespace of the carla vehicle is: "
+                          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
                 initROSConnections();
             }
 
@@ -82,7 +85,10 @@ namespace adore
             ros::Publisher publisher_spatem_;
             ros::Publisher publisher_mapem_;
             ros::Publisher publisher_direct_;
-            
+            ros::Subscriber subscriber_traffic_lights_status_;
+            ros::Subscriber subscriber_traffic_lights_info_;
+
+            std::string namespace_carla_;
             ros::NodeHandle* n_;
 
             int discard_age = 1;    //in [sec]
@@ -124,13 +130,14 @@ namespace adore
 
             void initROSConnections()
             {
-                //  V2XSIM
+                subscriber_traffic_lights_status_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightStatusList>(
+                    "/carla/traffic_lights/status", 1, &Trafficlights2Adore::receiveTrafficLightsStatusList, this);
+                subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
+                    "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receiveTrafficLightsInfoList, this);
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
-                //  V2XDIRECT
                 publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
-                //  DIRECT
                 publisher_direct_ = getRosNodeHandle()->advertise<adore_if_ros_msg::TCDConnectionStateTrace>("ENV/tcd", 500, true);
             }
 
