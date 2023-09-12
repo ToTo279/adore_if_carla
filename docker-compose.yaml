@@ -14,7 +14,7 @@ services:
     #command: tail -F anything
     #stdin_open: true 
     #tty: true
-    runtime: nvidia
+    #runtime: nvidia                        !!!
     privileged: true
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix

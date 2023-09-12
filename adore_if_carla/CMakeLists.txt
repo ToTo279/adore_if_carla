@@ -72,19 +72,19 @@ find_package(ZeroMQ CONFIG REQUIRED)
 
 
 
-generate_messages(
-    DEPENDENCIES
-    std_msgs  # Or other packages containing msgs
-    nav_msgs
-    geometry_msgs
-    carla_msgs
-  )
+#generate_messages(
+#    DEPENDENCIES
+#    std_msgs  # Or other packages containing msgs
+#    nav_msgs
+#    geometry_msgs
+#    carla_msgs
+#  )
 
 catkin_package(
   #INCLUDE_DIRS include
   LIBRARIES adore_if_carla
-  CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs ackermann_msgs carla_msgs
-  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg carla_msgs
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs ackermann_msgs
+  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg
 )
 
 include_directories(
