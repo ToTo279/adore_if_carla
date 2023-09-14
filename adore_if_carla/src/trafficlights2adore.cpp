@@ -74,6 +74,7 @@ namespace adore
                 std::cout << "Objects2Adore: namespace of the carla vehicle is: "
                           << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
                 initROSConnections();
+                getConnections();
             }
 
             void run()
@@ -91,11 +92,12 @@ namespace adore
             ros::Publisher publisher_mapem_;
             ros::Publisher publisher_direct_;
             ros::Subscriber subscriber_traffic_lights_status_;
-            ros::Subscriber subscriber_traffic_lights_info_;
+            //ros::Subscriber subscriber_traffic_lights_info_;
 
             std::string namespace_carla_;
             ros::NodeHandle* n_;
 
+            std::multimap<uint32_t, adore_if_ros_msg::Connection_<std::allocator<void>>> Connections;
             Betriebsmodus betriebsmodus = DIRECT;
             int discard_age = 1;    //in [sec]
             //double t_;
@@ -113,17 +115,17 @@ namespace adore
                     uint8 UNKNOWN=4
                     */
             };
-            struct CarlaTrafficLightInfo
+            /*struct CarlaTrafficLightInfo
             {
                 uint32_t id;
                 geometry_msgs::Pose transform;
                 carla_msgs::CarlaBoundingBox trigger_volume;    
-            };
+            };*/
             
             std::vector<CarlaTrafficLightStatus> traffic_lights_status;
             std::vector<CarlaTrafficLightStatus> traffic_lights_status_old;
-            std::vector<CarlaTrafficLightInfo> traffic_lights_info;
-            std::vector<CarlaTrafficLightInfo> traffic_lights_info_old;
+            //std::vector<CarlaTrafficLightInfo> traffic_lights_info;
+            //std::vector<CarlaTrafficLightInfo> traffic_lights_info_old;
 
             void initSim()
             {
@@ -138,8 +140,8 @@ namespace adore
             {
                 subscriber_traffic_lights_status_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightStatusList>(
                     "/carla/traffic_lights/status", 1, &Trafficlights2Adore::receiveTrafficLightsStatusList, this);
-                subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
-                    "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receiveTrafficLightsInfoList, this);
+                /*subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
+                    "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receiveTrafficLightsInfoList, this);*/
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
                 publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
@@ -147,7 +149,7 @@ namespace adore
                 publisher_direct_ = getRosNodeHandle()->advertise<adore_if_ros_msg::TCDConnectionStateTrace>("ENV/tcd", 500, true);
             }
 
-            double getTime()
+            /*double getTime()
             {
                 double time = 0;
 
@@ -156,6 +158,26 @@ namespace adore
                 time = ((double)ms) / 1000;//000000;
 
                 return time;   
+            }*/
+
+            void getConnections()
+            {
+                std::ifstream inputFile("trafficlightsConnections.txt");
+
+                std::string line;
+                while (std::getline(inputFile, line)) {
+                    std::istringstream iss(line);
+                    std::string ampelIDStr;
+                    adore_if_ros_msg::Connection_<std::allocator<void>> connection;
+                    
+                    if (iss >> ampelIDStr >> connection.first.x >> connection.first.y >> connection.first.z >> connection.last.x >> connection.last.y >> connection.last.z)
+                    {
+                        uint32_t ampelID = std::stoul(ampelIDStr);
+                        Connections.insert(std::make_pair(ampelID, connection));
+                    }
+                }
+                
+                inputFile.close(); 
             }
 
             void receiveTrafficLightsStatusList(carla_msgs::CarlaTrafficLightStatusList carla_traffic_light_status_list_)
@@ -198,7 +220,7 @@ namespace adore
                         break;
                     }
                 }
-            }*/
+            }
 
             void receiveTrafficLightsInfoList(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
             {
@@ -217,7 +239,7 @@ namespace adore
                 }
             }
 
-            /*void receiveTrafficLightsInfo(carla_msgs::CarlaTrafficLightInfo carla_traffic_light_info_)
+            void receiveTrafficLightsInfo(carla_msgs::CarlaTrafficLightInfo carla_traffic_light_info_)
             {
                 for (int i = 0; i < traffic_lights_info.size(); ++i)
                 {
@@ -234,16 +256,38 @@ namespace adore
             {
                 adore_if_ros_msg::TCDConnectionStateTrace out_msg;
 
-                /*  TO DO
-                out_msg.connection.first =
-                out_msg.connection.last = 
-                out_msg.data.minEndTime =
-                out_msg.data.maxEndTime = 
-                out_msg.data.likelyTime = 
-                out_msg.data.state = 
-                */
-                publisher_direct_.publish(out_msg);
+                for (const auto& entry : Connections)
+                {
+                    uint32_t targetAmpelID = entry.first;
+                    const adore_if_ros_msg::Connection_<std::allocator<void>>& connection = entry.second;
+                    adore_if_ros_msg::TCDConnectionState_<std::allocator<void>> newState;
+
+                    
+
+                    out_msg.connection.first = connection.first;
+                    out_msg.connection.last = connection.last;
+
+                    /*out_msg.connection.first = entry.second.first;
+                    out_msg.connection.last = entry.second.last;*/
+
+                    uint8_t state = 0;  
+                    for (const auto& status : traffic_lights_status) {
+                        if (status.id == targetAmpelID) {
+                            newState.state = static_cast<int8_t>(state); 
+                            break;  
+                        }
+                    }
+
+                    /*out_msg.data.minEndTime = 
+                    out_msg.data.maxEndTime = 
+                    out_msg.data.likelyTime =*/
+
+                    out_msg.data.push_back(newState);
+
+                    publisher_direct_.publish(out_msg);
+                }
             }
+
 
             void sendSPATEMSim()
             {
@@ -294,28 +338,6 @@ namespace adore
                 */
 
                 publisher_mapem_.publish(out_msg);
-            }
-
-            void getConnection()
-            {
-                std::multimap<std::string, adore_if_ros_msg::Connection_<std::allocator<void>>> Connections;
-                std::ifstream inputFile("trafficlightsConnections.txt");
-
-                std::string line;
-                while (std::getline(inputFile, line)) {
-                    std::istringstream iss(line);
-                    std::string ampelID;
-                    adore_if_ros_msg::Connection_<std::allocator<void>> connection;
-                    
-                    if (iss >> ampelID >> connection.first.x >> connection.first.y >> connection.first.z
-                            >> connection.last.x >> connection.last.y >> connection.last.z)
-                    {
-                        Connections.insert({ampelID, connection});
-                    }
-                }
-                
-                inputFile.close(); 
-
             }
         };
     }  // namespace adore_if_carla
