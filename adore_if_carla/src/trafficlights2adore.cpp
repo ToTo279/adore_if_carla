@@ -34,6 +34,11 @@
 //#include <geometry_msgs/Twist.h>
 //#include <dsrc_v2_dsrc/MapData.h>
 #include <adore_if_ros_msg/TCDConnectionStateTrace.h>
+#include <fstream>
+#include <sstream>
+#include <map>
+#include <vector>
+#include <string>
 
 /**
  * This nodes ...
@@ -91,6 +96,7 @@ namespace adore
             std::string namespace_carla_;
             ros::NodeHandle* n_;
 
+            Betriebsmodus betriebsmodus = DIRECT;
             int discard_age = 1;    //in [sec]
             //double t_;
 
@@ -166,6 +172,20 @@ namespace adore
 
                     traffic_lights_status.push_back(status);
                 }
+                if (betriebsmodus == V2XSIM)
+                {
+                    sendSPATEMSim();
+                    sendMAPEMSim();
+                }
+                else if (betriebsmodus == V2XDIRECT)
+                {
+                    sendSPATEM();
+                    sendMAPEM();
+                }
+                else if (betriebsmodus == DIRECT)
+                {
+                    sendDirect();
+                }
             }
 
             /*void receiveTrafficLightsStatus(carla_msgs::CarlaTrafficLightStatus carla_traffic_light_status_)
@@ -215,7 +235,8 @@ namespace adore
                 adore_if_ros_msg::TCDConnectionStateTrace out_msg;
 
                 /*  TO DO
-                out_msg.connection = 
+                out_msg.connection.first =
+                out_msg.connection.last = 
                 out_msg.data.minEndTime =
                 out_msg.data.maxEndTime = 
                 out_msg.data.likelyTime = 
@@ -273,6 +294,28 @@ namespace adore
                 */
 
                 publisher_mapem_.publish(out_msg);
+            }
+
+            void getConnection()
+            {
+                std::multimap<std::string, adore_if_ros_msg::Connection_<std::allocator<void>>> Connections;
+                std::ifstream inputFile("trafficlightsConnections.txt");
+
+                std::string line;
+                while (std::getline(inputFile, line)) {
+                    std::istringstream iss(line);
+                    std::string ampelID;
+                    adore_if_ros_msg::Connection_<std::allocator<void>> connection;
+                    
+                    if (iss >> ampelID >> connection.first.x >> connection.first.y >> connection.first.z
+                            >> connection.last.x >> connection.last.y >> connection.last.z)
+                    {
+                        Connections.insert({ampelID, connection});
+                    }
+                }
+                
+                inputFile.close(); 
+
             }
         };
     }  // namespace adore_if_carla
