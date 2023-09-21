@@ -262,13 +262,8 @@ namespace adore
                     const adore_if_ros_msg::Connection_<std::allocator<void>>& connection = entry.second;
                     adore_if_ros_msg::TCDConnectionState_<std::allocator<void>> newState;
 
-                    
-
                     out_msg.connection.first = connection.first;
                     out_msg.connection.last = connection.last;
-
-                    /*out_msg.connection.first = entry.second.first;
-                    out_msg.connection.last = entry.second.last;*/
 
                     uint8_t state = 0;  
                     for (const auto& status : traffic_lights_status) {
@@ -277,17 +272,10 @@ namespace adore
                             break;  
                         }
                     }
-
-                    /*out_msg.data.minEndTime = 
-                    out_msg.data.maxEndTime = 
-                    out_msg.data.likelyTime =*/
-
                     out_msg.data.push_back(newState);
-
                     publisher_direct_.publish(out_msg);
                 }
             }
-
 
             void sendSPATEMSim()
             {
