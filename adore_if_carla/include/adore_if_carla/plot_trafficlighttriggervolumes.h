@@ -39,20 +39,67 @@ private:
     DLR_TS::PlotLab::AFigureStub *figure_;
 
 
-
-    void receive_tl_info_list(todo)
-
+    void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
     {
+        id_to_triggervolume_.clear();
+
+        for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
+        {
+
+            triggervolume volume;
+
+            volume.center_x = carla_traffic_light_info.transform.position.x +
+                            carla_traffic_light_info.trigger_volume.center.x;
+            volume.center_y = carla_traffic_light_info.transform.position.y +
+                            carla_traffic_light_info.trigger_volume.center.y;
+            
+            volume.width = carla_traffic_light_info.trigger_volume.size.x;
+            volume.length = carla_traffic_light_info.trigger_volume.size.y;
+            volume.alpha = 0.0; 
+
+
+            id_to_triggervolume_[carla_traffic_light_info.id] = volume;
+        }
+        void plotRectangle(prefix_+std::to_string(info.id), double center_x, double center_y, double length, double width, figure_, styles_.at(info.status), double alpha=0.0)
+    }
+
+
+
+
+    /*void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
+    {
+        void receiveTrafficLightsInfoList(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
+        {
+            traffic_lights_info_old.clear();
+            traffic_lights_info_old = traffic_lights_info;
+            traffic_lights_info.clear();
+
+            for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
+            {
+                adore::adore_if_carla::Trafficlights2Adore::CarlaTrafficLightInfo info;
+                info.id = carla_traffic_light_info.id;
+                info.transform = carla_traffic_light_info.transform;
+                info.trigger_volume = carla_traffic_light_info.trigger_volume;
+
+                traffic_lights_info.push_back(info);
+            }
+        }
 
         //TODO
 
         void plotRectangle(prefix_+std::to_string(info.id), double center_x, double center_y, double length, double width, figure_, styles_.at(info.status), double alpha=0.0) 
 
-    }
+    }*/
 
-    void receive_tl_status_list(todo)
-
+    void receive_tl_status_list(carla_msgs::CarlaTrafficLightStatusList carla_traffic_light_status_list_)
     {
+        traffic_lights_status_old.clear();
+        traffic_lights_status_old = traffic_lights_status;
+        traffic_lights_status.clear();
+        for (const auto& carla_traffic_light_status : carla_traffic_light_status_list_.traffic_lights)
+        {
+            id_to_status_[carla_traffic_light_status.id] = carla_traffic_light_status.state;
+       }
 
 
         //todo geometries befüllen
@@ -79,6 +126,14 @@ public:
 		styles_.emplace(CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
 
 		styles_.emplace(CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");
+
+        /*
+        status_to_style_.emplace(0, "LineColor=1,0,0;LineWidth=2"); // RED
+        status_to_style_.emplace(1, "LineColor=1,1,0;LineWidth=2"); // YELLOW
+        status_to_style_.emplace(2, "LineColor=0,1,0;LineWidth=2"); // GREEN
+        status_to_style_.emplace(3, "LineColor=0,0,0;LineWidth=2"); // OFF
+        status_to_style_.emplace(4, "LineColor=0,0,1;LineWidth=2"); // UNKNOWN
+*/
 
 		
 

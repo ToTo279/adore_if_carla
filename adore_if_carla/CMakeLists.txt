@@ -124,6 +124,7 @@ target_include_directories(trafficlights2adore_node PRIVATE include ${catkin_INC
 target_link_libraries(trafficlights2adore_node
                         PRIVATE
                           ${catkin_LIBRARIES}
+                          libadore::libadore
                           #carla_msgs
 )
 

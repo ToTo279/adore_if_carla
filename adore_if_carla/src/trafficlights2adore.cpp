@@ -40,6 +40,8 @@
 #include <vector>
 #include <string>
 
+#include <adore_if_carla/plot_trafficlighttriggervolumes.h>
+
 /**
  * This nodes ...
  */
