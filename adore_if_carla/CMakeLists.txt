@@ -39,14 +39,17 @@ list(APPEND CMAKE_PREFIX_PATH "$ENV{CMAKE_PREFIX_PATH}")
 set(ADORE_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../adore_if_ros_msg/adore_if_ros_msg/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
+set(LIBADORE_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install")
+list(APPEND CMAKE_PREFIX_PATH "${LIBADORE_CMAKE_INSTALL_PATH}") 
+
 set(PLOTLABLIB_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../plotlablib/plotlablib/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${PLOTLABLIB_CMAKE_INSTALL_PATH}")
 
 set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../v2x_if_ros_msg/v2x_if_ros_msg/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
-set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install")
-list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
+#set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install")
+#list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cppzmq/build/install/share/cmake/cppzmq")
 #/share/cmake/cppzmq/cppzmqConfig.cmake
@@ -61,6 +64,7 @@ find_package(catkin REQUIRED COMPONENTS
     carla_msgs
     roscpp
     ackermann_msgs
+    #libadore
 )
 
 find_package(carla_msgs CONFIG REQUIRED)
@@ -70,6 +74,7 @@ find_package(adore_v2x_sim CONFIG REQUIRED)
 find_package(plotlablib CONFIG REQUIRED)
 find_package(cppzmq CONFIG REQUIRED)
 find_package(ZeroMQ CONFIG REQUIRED)
+find_package(dlib CONFIG REQUIRED)
 
 #find_package(libadore CONFIG REQUIRED)
 
@@ -87,13 +92,12 @@ catkin_package(
   #INCLUDE_DIRS include
   LIBRARIES adore_if_carla
   CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs ackermann_msgs
-  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg libadore
+  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg
 )
 
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  libadore
 )
 
 
@@ -128,7 +132,9 @@ target_include_directories(trafficlights2adore_node PRIVATE include ${catkin_INC
 target_link_libraries(trafficlights2adore_node
                         PRIVATE
                           ${catkin_LIBRARIES}
-                          libadore::libadore
+                          libadore::apps
+                          plotlablib::plotlablib
+                          dlib::dlib
                           #carla_msgs
 )
 

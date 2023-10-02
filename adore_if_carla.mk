@@ -33,6 +33,7 @@ include ${MAKE_GADGETS_PATH}/make_gadgets.mk
 include ${MAKE_GADGETS_PATH}/docker/docker-tools.mk
 
 include ${ADORE_IF_CARLA_SUBMODULES_PATH}/plotlablib/plotlablib.mk
+include ${ADORE_IF_CARLA_SUBMODULES_PATH}/libadore/libadore.mk
 include ${ADORE_IF_CARLA_SUBMODULES_PATH}/adore_if_ros_msg/adore_if_ros_msg.mk
 include ${ADORE_IF_CARLA_SUBMODULES_PATH}/v2x_if_ros_msg/v2x_if_ros_msg.mk
 include ${ADORE_IF_CARLA_SUBMODULES_PATH}/adore_v2x_sim/adore_v2x_sim.mk

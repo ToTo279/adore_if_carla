@@ -9,7 +9,7 @@ ARG ADORE_V2X_SIM_TAG=latest
 
 FROM carlasim/carla:0.9.13 AS carlasim_carla
 FROM adore_if_ros_msg:${ADORE_IF_ROS_MSG_TAG} AS adore_if_ros_msg
-
+FROM libadore:${LIBADORE_TAG} AS libadore
 FROM plotlablib:${PLOTLABLIB_TAG} AS plotlablib
 FROM libzmq:latest AS libzmq
 FROM cppzmq:latest AS cppzmq
@@ -68,6 +68,11 @@ RUN source /opt/ros/noetic/setup.bash && \
     cmake --install . --prefix ${INSTALL_PREFIX} 
 
 #copy files/catkin_build.sh /tmp/${PROJECT}
+
+ARG LIB=libadore
+COPY --from=libadore /tmp/${LIB} /tmp/${LIB}
+WORKDIR /tmp/${LIB}/${LIB}/build
+RUN cmake --install . --prefix ${INSTALL_PREFIX} 
 
 ARG LIB=plotlablib
 COPY --from=plotlablib /tmp/${LIB} /tmp/${LIB}

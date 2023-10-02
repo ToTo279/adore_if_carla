@@ -4,7 +4,11 @@
 #include <plotlablib/afigurestub.h>
 #include <plotlablib/plcommands.h> 
 
-
+#include <carla_msgs/CarlaTrafficLightStatusList.h>
+#include <carla_msgs/CarlaTrafficLightStatus.h>
+#include <carla_msgs/CarlaTrafficLightInfoList.h>
+#include <carla_msgs/CarlaTrafficLightInfo.h>
+//#include <carla_msgs/CarlaBoundingBox.h>
 
 class PlotTrafficLightTriggerVolumes
 {
@@ -35,20 +39,19 @@ private:
 
         for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
         {
-
             triggervolume volume;
 
-            volume.center_x = carla_traffic_light_info.transform.position.x + 0.5*carla_traffic_light_info.trigger_volume.center.x;
-            volume.center_y = carla_traffic_light_info.transform.position.y + 0.5*carla_traffic_light_info.trigger_volume.center.y;
+            volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
+            volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y;
             
             volume.width = carla_traffic_light_info.trigger_volume.size.x;
             volume.length = carla_traffic_light_info.trigger_volume.size.y;
             volume.alpha = 0.0; 
 
-
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
+
+            plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(carla_traffic_light_info.status), alpha=0.0)
         }
-        plotRectangle(prefix_+std::to_string(info.id), center_x, center_y, length, width, figure_, styles_.at(info.status), alpha=0.0)
     }
 
     void receive_tl_status_list(carla_msgs::CarlaTrafficLightStatusList carla_traffic_light_status_list_)
@@ -66,12 +69,11 @@ private:
 public:
     PlotTrafficLightTriggerVolumes()
     {
-
-		styles_.emplace(CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
-		styles_.emplace(CarlaTrafficLightStatus::YELLOW,"LineColor=0,0,1;LineWidth=2");
-		styles_.emplace(CarlaTrafficLightStatus::GREEN,"LineColor=0,0,1;LineWidth=2");
-		styles_.emplace(CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
-		styles_.emplace(CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(CarlaTrafficLightStatus::YELLOW,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(CarlaTrafficLightStatus::GREEN,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");
 
         /*
         status_to_style_.emplace(0, "LineColor=1,0,0;LineWidth=2"); // RED
@@ -98,11 +100,9 @@ public:
     }
 };
 
-
-
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
     ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
     PlotLongControlInfo plci;
     plci.run();
-}
+}*/
