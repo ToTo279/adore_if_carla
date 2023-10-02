@@ -31,6 +31,9 @@ private:
     ros::Subscriber subscriber_tl_info_list;
     ros::Subscriber subscriber_tl_status_list;
 
+    std::vector<carla_msgs::CarlaTrafficLightStatus> traffic_lights_status;
+    std::vector<carla_msgs::CarlaTrafficLightStatus> traffic_lights_status_old;
+
     DLR_TS::PlotLab::AFigureStub *figure_;
 
     void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
@@ -50,7 +53,7 @@ private:
 
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
 
-            plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(carla_traffic_light_info.status), alpha=0.0)
+            adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(carla_traffic_light_info.id), volume.alpha=0.0)
         }
     }
 
@@ -69,11 +72,11 @@ private:
 public:
     PlotTrafficLightTriggerVolumes()
     {
-		status_to_style_.emplace(CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(CarlaTrafficLightStatus::YELLOW,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(CarlaTrafficLightStatus::GREEN,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::YELLOW,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::GREEN,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");
 
         /*
         status_to_style_.emplace(0, "LineColor=1,0,0;LineWidth=2"); // RED

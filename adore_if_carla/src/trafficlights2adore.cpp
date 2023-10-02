@@ -104,7 +104,7 @@ namespace adore
             int discard_age = 1;    //in [sec]
             //double t_;
 
-            struct CarlaTrafficLightStatus
+            /*struct CarlaTrafficLightStatus
             {
                 uint32_t id;
                 uint8_t state;
@@ -116,7 +116,7 @@ namespace adore
                     uint8 OFF=3
                     uint8 UNKNOWN=4
                     */
-            };
+            //};
             /*struct CarlaTrafficLightInfo
             {
                 uint32_t id;
@@ -124,8 +124,8 @@ namespace adore
                 carla_msgs::CarlaBoundingBox trigger_volume;    
             };*/
             
-            std::vector<CarlaTrafficLightStatus> traffic_lights_status;
-            std::vector<CarlaTrafficLightStatus> traffic_lights_status_old;
+            std::vector<carla_msgs::CarlaTrafficLightStatus> traffic_lights_status;
+            std::vector<carla_msgs::CarlaTrafficLightStatus> traffic_lights_status_old;
             //std::vector<CarlaTrafficLightInfo> traffic_lights_info;
             //std::vector<CarlaTrafficLightInfo> traffic_lights_info_old;
 
@@ -190,7 +190,8 @@ namespace adore
 
                 for (const auto& carla_traffic_light_status : carla_traffic_light_status_list_.traffic_lights)
                 {
-                    adore::adore_if_carla::Trafficlights2Adore::CarlaTrafficLightStatus status;
+                    //adore::adore_if_carla::Trafficlights2Adore::CarlaTrafficLightStatus status;
+                    carla_msgs::CarlaTrafficLightStatus status;
                     status.id = carla_traffic_light_status.id;
                     status.state = carla_traffic_light_status.state;
 
