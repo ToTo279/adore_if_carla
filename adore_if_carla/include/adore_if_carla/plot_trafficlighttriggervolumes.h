@@ -10,6 +10,8 @@
 #include <carla_msgs/CarlaTrafficLightInfo.h>
 //#include <carla_msgs/CarlaBoundingBox.h>
 
+#include <ros/ros.h>
+
 class PlotTrafficLightTriggerVolumes
 {
 private:
@@ -35,6 +37,8 @@ private:
     std::vector<carla_msgs::CarlaTrafficLightStatus> traffic_lights_status_old;
 
     DLR_TS::PlotLab::AFigureStub *figure_;
+
+    ros::NodeHandle* n_ = new ros::NodeHandle();
 
     void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
     {
@@ -94,6 +98,20 @@ public:
         subscriber_tl_status_list = n_->subscribe<carla_msgs::CarlaTrafficLightStatusList>("/carla/traffic_lights/status", 1, &PlotTrafficLightTriggerVolumes::receive_tl_status_list, this);
         prefix_ = "trafficlighttrigger";
     }
+    /*void init(int argc, char** argv, double rate, std::string nodename)
+    {
+        // Although the application has no periodically called functions, the rate is required for scheduling
+        ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+        //ros::init(argc, argv, nodename);
+        ros::NodeHandle* n_ = new ros::NodeHandle();
+        //n_ = n;
+        //initSim();
+        //bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
+        //std::cout << "Objects2Adore: namespace of the carla vehicle is: "
+        //          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
+        //initROSConnections();
+        getConnections();
+    }*/
     void run()
     {
         while (n_->ok())

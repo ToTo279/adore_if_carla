@@ -60,6 +60,8 @@ namespace adore
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+
     PlotTrafficLightTriggerVolumes ptltv;
+    //ptltv.init();
     ptltv.run();
 }
