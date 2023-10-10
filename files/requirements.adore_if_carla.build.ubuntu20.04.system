@@ -7,6 +7,9 @@ ros-noetic-roscpp-core
 ros-noetic-ackermann-msgs
 ros-noetic-derived-object-msgs
 
+libopenblas-dev
+libblas-dev
+liblapack-dev
 libzmq3-dev 
 libzmq5 
 libzmqpp-dev
