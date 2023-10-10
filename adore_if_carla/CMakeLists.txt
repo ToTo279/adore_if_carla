@@ -48,6 +48,9 @@ list(APPEND CMAKE_PREFIX_PATH "${PLOTLABLIB_CMAKE_INSTALL_PATH}")
 set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../v2x_if_ros_msg/v2x_if_ros_msg/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
+#add_library(qpoases::qpoases STATIC IMPORTED GLOBAL)
+#set_property(TARGET qpoases::qpoases PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install/lib/libqpOASES.a)
+
 #set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install")
 #list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
@@ -70,6 +73,8 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(carla_msgs CONFIG REQUIRED)
 
 find_package(adore_v2x_sim CONFIG REQUIRED)
+
+find_package(apps CONFIG REQUIRED)
 
 find_package(plotlablib CONFIG REQUIRED)
 find_package(cppzmq CONFIG REQUIRED)
