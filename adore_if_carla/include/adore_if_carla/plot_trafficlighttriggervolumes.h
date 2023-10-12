@@ -101,7 +101,7 @@ public:
     /*void init(int argc, char** argv, double rate, std::string nodename)
     {
         // Although the application has no periodically called functions, the rate is required for scheduling
-        ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+        ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
         //ros::init(argc, argv, nodename);
         ros::NodeHandle* n_ = new ros::NodeHandle();
         //n_ = n;

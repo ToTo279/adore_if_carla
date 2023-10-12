@@ -18,16 +18,18 @@ namespace adore
       }*/
       /*void init(int argc, char **argv, double rate, std::string nodename)
       {
-        Baseapp::init(argc, argv, rate, nodename);
-        Baseapp::initSim();
-        FactoryCollection::init(getRosNodeHandle());
+        //Baseapp::init(argc, argv, rate, nodename);
+        //Baseapp::initSim();
+        //FactoryCollection::init(getRosNodeHandle());
+        ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+
         DLR_TS::PlotLab::FigureStubFactory fig_factory;
         auto figure = fig_factory.createFigureStub(2);
         figure->show();
-        int simulationID = 0;
-        getParam("simulationID",simulationID);
+        //int simulationID = 0;
+        //getParam("simulationID",simulationID);
 
-        int followMode = 0;
+        /*int followMode = 0;
         getParam("plotoptions/followMode",followMode);
 
  
@@ -36,8 +38,8 @@ namespace adore
         app_ = new adore::apps::PlotEgo(figure,ss.str(),followMode);
         app_->setMapFigure(fig_factory.createFigureStub(1));
         std::function<void()> run_fcn(std::bind(&adore::apps::PlotEgo::run,app_));
-        Baseapp::addTimerCallback(run_fcn);
-      }*/
+        Baseapp::addTimerCallback(run_fcn);*/
+      //}
     };
   }
 }

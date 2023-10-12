@@ -174,6 +174,7 @@ install(
   clock2simtime_node
   trafficlights2adore_node
   plot_longitudinal_control_info_node
+  plot_trafficlighttriggervolumes_node
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
