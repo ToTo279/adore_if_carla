@@ -339,7 +339,7 @@ namespace adore
 
 int main(int argc, char** argv)
 {
-    /*ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+    /*ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
     PlotTrafficLightTriggerVolumes ptltv;
     ptltv.run();*/
     adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;

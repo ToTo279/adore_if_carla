@@ -21,7 +21,7 @@ namespace adore
         //Baseapp::init(argc, argv, rate, nodename);
         //Baseapp::initSim();
         //FactoryCollection::init(getRosNodeHandle());
-        ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+        ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
 
         DLR_TS::PlotLab::FigureStubFactory fig_factory;
         auto figure = fig_factory.createFigureStub(2);
@@ -61,7 +61,7 @@ namespace adore
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "plot_traffic_ligtht_trigger_volumes");
+    ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
 
     PlotTrafficLightTriggerVolumes ptltv;
     //ptltv.init();
