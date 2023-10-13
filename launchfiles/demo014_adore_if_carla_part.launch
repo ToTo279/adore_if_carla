@@ -29,7 +29,7 @@
         <node name="ackermanncommand_adore2carla" pkg="adore_if_carla" type="ackermanncommand2carla_node" output="screen"/>
         <node name="objects_carla2adore" pkg="adore_if_carla" type="objects2adore_node" output="screen"/>
         <node name="plot_longitudinal_control_info" pkg="adore_if_carla" type="plot_longitudinal_control_info_node" output="screen"/>
-        <node name="plot_traffic_light_trigger_volumes" pkg="adore_if_carla" type="plot_trafficlighttriggervolumes_node" output="screen"/>
+        <node name="plot_traffic_light_trigger_volumes" pkg="adore_if_carla" type="plot_trafficlighttriggervolumes_node" launch-prefix="xterm -e" output="screen"/>
     </group>
 
 </launch>

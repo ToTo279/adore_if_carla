@@ -43,6 +43,8 @@ private:
     void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
     {
         id_to_triggervolume_.clear();
+        std::cout<<"receive_tl_info_list cleared"<<std::endl;
+
 
         for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
         {
@@ -54,10 +56,12 @@ private:
             volume.width = carla_traffic_light_info.trigger_volume.size.x;
             volume.length = carla_traffic_light_info.trigger_volume.size.y;
             volume.alpha = 0.0; 
-
+            std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
+            std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
 
             adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(carla_traffic_light_info.id), volume.alpha=0.0);
+            std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde aufgerufen"<<std::endl;
         }
     }
 
@@ -66,9 +70,11 @@ private:
         traffic_lights_status_old.clear();
         traffic_lights_status_old = traffic_lights_status;
         traffic_lights_status.clear();
+        std::cout<<"traffic_lights_status cleared"<<std::endl;
         for (const auto& carla_traffic_light_status : carla_traffic_light_status_list_.traffic_lights)
         {
             id_to_status_[carla_traffic_light_status.id] = carla_traffic_light_status.state;
+            std::cout<<"receive_tl_status_list fuer"<< carla_traffic_light_status.id<<"wurde aufgerufen"<<std::endl;
         }
 
     }
@@ -97,6 +103,7 @@ public:
         subscriber_tl_info_list = n_->subscribe<carla_msgs::CarlaTrafficLightInfoList>("/carla/traffic_lights/info", 1, &PlotTrafficLightTriggerVolumes::receive_tl_info_list, this);
         subscriber_tl_status_list = n_->subscribe<carla_msgs::CarlaTrafficLightStatusList>("/carla/traffic_lights/status", 1, &PlotTrafficLightTriggerVolumes::receive_tl_status_list, this);
         prefix_ = "trafficlighttrigger";
+        std::cout<<"Constructor wurde aufgerufen"<<std::endl;
     }
     /*void init(int argc, char** argv, double rate, std::string nodename)
     {
@@ -117,6 +124,7 @@ public:
         while (n_->ok())
         {
             ros::spin();
+            std::cout<<"run"<<std::endl;
         }
     }
 };
