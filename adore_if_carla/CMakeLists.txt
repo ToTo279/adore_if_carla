@@ -158,6 +158,7 @@ target_link_libraries(plot_trafficlighttriggervolumes_node
 
 
 add_executable(plot_longitudinal_control_info_node src/plot_longitudinal_control_info.cpp)
+#target_sources(plot_longitudinal_control_info_node PRIVATE src/plot_longitudinal_control_info.cpp)
 target_include_directories(plot_longitudinal_control_info_node PRIVATE include ${catkin_INCLUDE_DIRS})
 target_link_libraries(plot_longitudinal_control_info_node
                         PRIVATE 
@@ -173,8 +174,8 @@ install(
   ackermanncommand2carla_node
   clock2simtime_node
   trafficlights2adore_node
-  plot_longitudinal_control_info_node
   plot_trafficlighttriggervolumes_node
+  plot_longitudinal_control_info_node
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

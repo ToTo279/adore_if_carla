@@ -37,14 +37,15 @@ services:
         - ADORE_V2X_SIM_TAG=${ADORE_V2X_SIM_TAG}
     image: ${ADORE_IF_CARLA_PROJECT}:${ADORE_IF_CARLA_TAG}
     container_name: adore_if_carla 
-    depends_on:
-      - carla-ros-bridge
+    #depends_on:
+     # - carla-ros-bridge
     environment:
       - DISPLAY=${DISPLAY}
-    command: /bin/bash -c "source /tmp/adore_if_carla/adore_if_carla/build/install/setup.bash; roslaunch --wait /tmp/adore_if_carla/adore_if_carla/launch/demo014_adore_if_carla_part.launch"
+    command: /bin/bash -c "source /tmp/adore_if_carla/adore_if_carla/build/install/setup.bash; roslaunch --wait /tmp/adore_if_carla/launchfiles/demo014_adore_if_carla_part.launch"
     #command: tail -F anything
     #stdin_open: true 
     #tty: true
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./:/tmp/adore_if_carla/
     network_mode: host
