@@ -60,7 +60,7 @@ private:
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
             std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
 
-            adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(carla_traffic_light_info.id), volume.alpha=0.0);
+            adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[carla_traffic_light_info.id]), volume.alpha=0.0);
             std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde aufgerufen"<<std::endl;
         }
     }
