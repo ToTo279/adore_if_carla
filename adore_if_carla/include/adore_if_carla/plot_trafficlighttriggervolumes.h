@@ -55,12 +55,13 @@ private:
             
             volume.width = carla_traffic_light_info.trigger_volume.size.x;
             volume.length = carla_traffic_light_info.trigger_volume.size.y;
-            volume.alpha = 0.0; 
+            double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+            double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+            volume.alpha = std::atan2(siny_cosp, cosy_cosp);
             std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
             std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
 
-            adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[carla_traffic_light_info.id]), volume.alpha=0.0);
             std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde aufgerufen"<<std::endl;
         }
     }
@@ -76,7 +77,15 @@ private:
             id_to_status_[carla_traffic_light_status.id] = carla_traffic_light_status.state;
             std::cout<<"receive_tl_status_list fuer"<< carla_traffic_light_status.id<<"wurde aufgerufen"<<std::endl;
         }
+    }
 
+    void plot_triggger_volumes()
+    {
+        for (const auto& entry : id_to_triggervolume_) {
+            unsigned int id = entry.first;
+            triggervolume volume = entry.second;
+            adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[carla_traffic_light_info.id]), volume.alpha);
+        }
     }
 
 public:
@@ -105,20 +114,21 @@ public:
         prefix_ = "trafficlighttrigger";
         std::cout<<"Constructor wurde aufgerufen"<<std::endl;
     }
-    /*void init(int argc, char** argv, double rate, std::string nodename)
+    void init(int argc, char** argv, double rate, std::string nodename)
     {
         // Although the application has no periodically called functions, the rate is required for scheduling
-        ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
-        //ros::init(argc, argv, nodename);
-        ros::NodeHandle* n_ = new ros::NodeHandle();
+        //ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
+        ros::init(argc, argv, nodename);
+        //ros::NodeHandle* n_ = new ros::NodeHandle();
         //n_ = n;
         //initSim();
         //bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
         //std::cout << "Objects2Adore: namespace of the carla vehicle is: "
         //          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
         //initROSConnections();
-        getConnections();
-    }*/
+        //getConnections();
+        plot_triggger_volumes();
+    }
     void run()
     {
         while (n_->ok())
