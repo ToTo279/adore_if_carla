@@ -40,6 +40,8 @@ private:
 
     ros::NodeHandle* n_ = new ros::NodeHandle();
 
+    ros::Timer timer_;
+
     void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
     {
         id_to_triggervolume_.clear();
@@ -55,14 +57,14 @@ private:
             
             volume.width = carla_traffic_light_info.trigger_volume.size.x;
             volume.length = carla_traffic_light_info.trigger_volume.size.y;
-            double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-            double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+            double siny_cosp = 2 * (carla_traffic_light_info.transform.orientation.w * carla_traffic_light_info.transform.orientation.z + carla_traffic_light_info.transform.orientation.x * carla_traffic_light_info.transform.orientation.y);
+            double cosy_cosp = 1 - 2 * (carla_traffic_light_info.transform.orientation.y * carla_traffic_light_info.transform.orientation.y + carla_traffic_light_info.transform.orientation.z * carla_traffic_light_info.transform.orientation.z);
             volume.alpha = std::atan2(siny_cosp, cosy_cosp);
-            std::cout<<"volume befüllt"<<std::endl;
+            //std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
-            std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
+            //std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
 
-            std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde aufgerufen"<<std::endl;
+            std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde mit Winkel: "<<volume.alpha<<" aufgerufen"<<std::endl;
         }
     }
 
@@ -71,11 +73,11 @@ private:
         traffic_lights_status_old.clear();
         traffic_lights_status_old = traffic_lights_status;
         traffic_lights_status.clear();
-        std::cout<<"traffic_lights_status cleared"<<std::endl;
+        //std::cout<<"traffic_lights_status cleared"<<std::endl;
         for (const auto& carla_traffic_light_status : carla_traffic_light_status_list_.traffic_lights)
         {
             id_to_status_[carla_traffic_light_status.id] = carla_traffic_light_status.state;
-            std::cout<<"receive_tl_status_list fuer"<< carla_traffic_light_status.id<<"wurde aufgerufen"<<std::endl;
+            //std::cout<<"receive_tl_status_list fuer"<< carla_traffic_light_status.id<<"wurde aufgerufen"<<std::endl;
         }
     }
 
@@ -84,26 +86,31 @@ private:
         for (const auto& entry : id_to_triggervolume_) {
             unsigned int id = entry.first;
             triggervolume volume = entry.second;
-            adore::PLOT::plotRectangle(prefix_+std::to_string(carla_traffic_light_info.id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[carla_traffic_light_info.id]), volume.alpha);
+            adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
+            //std::cout<<id<<": "<<status_to_style_.at(id_to_status_[id])<<std::endl;
         }
+        //std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
+    }
+
+    void periodic_run(const ros::TimerEvent &te)
+    {
+        plot_triggger_volumes();
     }
 
 public:
     PlotTrafficLightTriggerVolumes()
     {
-		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
+		/*status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
 		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::YELLOW,"LineColor=0,0,1;LineWidth=2");
 		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::GREEN,"LineColor=0,0,1;LineWidth=2");
 		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");
+		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");*/
 
-        /*
         status_to_style_.emplace(0, "LineColor=1,0,0;LineWidth=2"); // RED
         status_to_style_.emplace(1, "LineColor=1,1,0;LineWidth=2"); // YELLOW
         status_to_style_.emplace(2, "LineColor=0,1,0;LineWidth=2"); // GREEN
         status_to_style_.emplace(3, "LineColor=0,0,0;LineWidth=2"); // OFF
         status_to_style_.emplace(4, "LineColor=0,0,1;LineWidth=2"); // UNKNOWN
-        */
 
 		DLR_TS::PlotLab::FigureStubFactory fig_factory;
         figure_ = fig_factory.createFigureStub(2);
@@ -112,14 +119,17 @@ public:
         subscriber_tl_info_list = n_->subscribe<carla_msgs::CarlaTrafficLightInfoList>("/carla/traffic_lights/info", 1, &PlotTrafficLightTriggerVolumes::receive_tl_info_list, this);
         subscriber_tl_status_list = n_->subscribe<carla_msgs::CarlaTrafficLightStatusList>("/carla/traffic_lights/status", 1, &PlotTrafficLightTriggerVolumes::receive_tl_status_list, this);
         prefix_ = "trafficlighttrigger";
-        std::cout<<"Constructor wurde aufgerufen"<<std::endl;
+        //std::cout<<"Constructor wurde aufgerufen"<<std::endl;
     }
     void init(int argc, char** argv, double rate, std::string nodename)
     {
         // Although the application has no periodically called functions, the rate is required for scheduling
         //ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
-        ros::init(argc, argv, nodename);
+
+
+        //ros::init(argc, argv, nodename);
         //ros::NodeHandle* n_ = new ros::NodeHandle();
+
         //n_ = n;
         //initSim();
         //bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
@@ -127,7 +137,9 @@ public:
         //          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
         //initROSConnections();
         //getConnections();
-        plot_triggger_volumes();
+        
+        timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&PlotTrafficLightTriggerVolumes::periodic_run, this, std::placeholders::_1));
+        std::cout<<"init aufgerufen"<<std::endl;
     }
     void run()
     {
