@@ -11,6 +11,7 @@
 //#include <carla_msgs/CarlaBoundingBox.h>
 
 #include <ros/ros.h>
+#include <tf/transform_datatypes.h>
 
 class PlotTrafficLightTriggerVolumes
 {
@@ -52,14 +53,21 @@ private:
         {
             triggervolume volume;
 
+            /*double siny_cosp = 2 * (carla_traffic_light_info.transform.orientation.w * carla_traffic_light_info.transform.orientation.z + carla_traffic_light_info.transform.orientation.x * carla_traffic_light_info.transform.orientation.y);
+            double cosy_cosp = 1 - 2 * (carla_traffic_light_info.transform.orientation.y * carla_traffic_light_info.transform.orientation.y + carla_traffic_light_info.transform.orientation.z * carla_traffic_light_info.transform.orientation.z);
+            volume.alpha = std::atan2(siny_cosp, cosy_cosp);*/
+            tf::Quaternion q(carla_traffic_light_info.transform.orientation.x, carla_traffic_light_info.transform.orientation.y, carla_traffic_light_info.transform.orientation.z, carla_traffic_light_info.transform.orientation.w);
+            tf::Matrix3x3 m(q);
+            m.getAngle(volume.alpha);
+            volume.center_x = carla_traffic_light_info.transform.position.x + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
+            volume.center_y = carla_traffic_light_info.transform.position.y + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
+            //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x/std::cos(volume.alpha);
+            //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y/std::sin(volume.alpha);
             volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
             volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y;
-            
             volume.width = carla_traffic_light_info.trigger_volume.size.x;
             volume.length = carla_traffic_light_info.trigger_volume.size.y;
-            double siny_cosp = 2 * (carla_traffic_light_info.transform.orientation.w * carla_traffic_light_info.transform.orientation.z + carla_traffic_light_info.transform.orientation.x * carla_traffic_light_info.transform.orientation.y);
-            double cosy_cosp = 1 - 2 * (carla_traffic_light_info.transform.orientation.y * carla_traffic_light_info.transform.orientation.y + carla_traffic_light_info.transform.orientation.z * carla_traffic_light_info.transform.orientation.z);
-            volume.alpha = std::atan2(siny_cosp, cosy_cosp);
+            
             //std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
             //std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
@@ -89,7 +97,7 @@ private:
             adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
             //std::cout<<id<<": "<<status_to_style_.at(id_to_status_[id])<<std::endl;
         }
-        //std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
+        std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
     }
 
     void periodic_run(const ros::TimerEvent &te)

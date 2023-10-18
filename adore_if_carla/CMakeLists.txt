@@ -68,6 +68,7 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     ackermann_msgs
     #libadore
+    tf
 )
 
 find_package(carla_msgs CONFIG REQUIRED)
@@ -97,7 +98,7 @@ catkin_package(
   #INCLUDE_DIRS include
   LIBRARIES adore_if_carla
   CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs ackermann_msgs
-  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg
+  CATKIN_DEPENDS adore_if_ros_msg adore_v2x_sim v2x_if_ros_msg tf
 )
 
 include_directories(
@@ -154,6 +155,7 @@ target_link_libraries(plot_trafficlighttriggervolumes_node
                           plotlablib::plotlablib
                           dlib::dlib
                           #carla_msgs
+                          #tf::tf
 )
 
 
