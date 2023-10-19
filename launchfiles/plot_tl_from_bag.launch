@@ -15,7 +15,7 @@
 <!-- Please note the instructions in the README.md file.-->
 <launch>
   <!-- global parameters -->
-  <param name="/use_sim_time" value="false"/>
+  <param name="/use_sim_time" value="true"/>
   <param name="/tcp_no_delay" value="true"/>
   <param name="/use_scheduler" value="false"/>
 
@@ -25,9 +25,11 @@
         
         <!--Parameters-->
         <param name="PARAMS/tactical_planner/global_speed_limit" value="14" type="double"/>
-        <param name="PARAMS/track" value="$(dirname)/../adore_if_carla/adore_if_carla/launch/Town10HD.xodr" type="str" />
+        <param name="PARAMS/track" value="$(dirname)/../adore_if_carla/launch/Town10HD.xodr" type="str" />
+        <param name="PARAMS/map_provider/plot_complete_map_in_local_view" value="true" type="bool" /> 
+        <param name="PARAMS/map_provider/activate_plotting" value="true" type="bool" /> 
 
-        <node name="lmap" pkg="adore_if_ros" type="adore_mapprovider_node" cwd="ROS_HOME"/><!-- ROS_HOME is ~/.ros by default-->
+        <node name="lmap" pkg="adore_if_ros" type="adore_mapprovider_node" output="screen" cwd="ROS_HOME"/><!-- ROS_HOME is ~/.ros by default-->
 
     </group>
 

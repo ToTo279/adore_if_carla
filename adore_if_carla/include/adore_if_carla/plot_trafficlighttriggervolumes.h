@@ -61,8 +61,8 @@ private:
             double roll, pitch, yaw;
             m.getRPY(roll, pitch, yaw);
             volume.alpha = yaw;
-            volume.center_x = carla_traffic_light_info.transform.position.x + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
-            volume.center_y = carla_traffic_light_info.transform.position.y + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
+            volume.center_x = carla_traffic_light_info.transform.position.x;// + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
+            volume.center_y = carla_traffic_light_info.transform.position.y;// + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x/std::cos(volume.alpha);
             //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y/std::sin(volume.alpha);
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
@@ -96,7 +96,8 @@ private:
         for (const auto& entry : id_to_triggervolume_) {
             unsigned int id = entry.first;
             triggervolume volume = entry.second;
-            adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
+            //adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
+            adore::PLOT::plotArrow(prefix_+std::to_string(id), volume.center_x,volume.center_y,1,volume.alpha,5, 2,status_to_style_.at(id_to_status_[id]), figure_);
             //std::cout<<id<<": "<<status_to_style_.at(id_to_status_[id])<<std::endl;
         }
         std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
