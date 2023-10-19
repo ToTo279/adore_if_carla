@@ -58,13 +58,15 @@ private:
             volume.alpha = std::atan2(siny_cosp, cosy_cosp);*/
             tf::Quaternion q(carla_traffic_light_info.transform.orientation.x, carla_traffic_light_info.transform.orientation.y, carla_traffic_light_info.transform.orientation.z, carla_traffic_light_info.transform.orientation.w);
             tf::Matrix3x3 m(q);
-            m.getAngle(volume.alpha);
+            double roll, pitch, yaw;
+            m.getRPY(roll, pitch, yaw);
+            volume.alpha = yaw;
             volume.center_x = carla_traffic_light_info.transform.position.x + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
             volume.center_y = carla_traffic_light_info.transform.position.y + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x/std::cos(volume.alpha);
             //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y/std::sin(volume.alpha);
-            volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
-            volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y;
+            //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
+            //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y;
             volume.width = carla_traffic_light_info.trigger_volume.size.x;
             volume.length = carla_traffic_light_info.trigger_volume.size.y;
             

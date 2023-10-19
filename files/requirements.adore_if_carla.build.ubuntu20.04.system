@@ -6,6 +6,7 @@ python3-catkin-tools
 ros-noetic-roscpp-core
 ros-noetic-ackermann-msgs
 ros-noetic-derived-object-msgs
+ros-noetic-tf
 
 libopenblas-dev
 libblas-dev
