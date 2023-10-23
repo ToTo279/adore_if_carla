@@ -57,12 +57,46 @@ private:
             double cosy_cosp = 1 - 2 * (carla_traffic_light_info.transform.orientation.y * carla_traffic_light_info.transform.orientation.y + carla_traffic_light_info.transform.orientation.z * carla_traffic_light_info.transform.orientation.z);
             volume.alpha = std::atan2(siny_cosp, cosy_cosp);*/
             tf::Quaternion q(carla_traffic_light_info.transform.orientation.x, carla_traffic_light_info.transform.orientation.y, carla_traffic_light_info.transform.orientation.z, carla_traffic_light_info.transform.orientation.w);
-            tf::Matrix3x3 m(q);
+            tf::Vector3 v(carla_traffic_light_info.transform.position.x, carla_traffic_light_info.transform.position.y, carla_traffic_light_info.transform.position.z);
+            tf::Vector3 v_center(carla_traffic_light_info.trigger_volume.center.x, carla_traffic_light_info.trigger_volume.center.y, carla_traffic_light_info.trigger_volume.center.z);
+
+            tf::Transform t(q,v);
+            std::cout << "ID: " << carla_traffic_light_info.id << std::endl;
+
+            tf::Vector3 v_origin;
+            v_origin = t.getOrigin();
+            std::cout<<"getOrigin: "<<std::endl;
+            std::cout << "x: " << v_origin.x() << "   y: " << v_origin.y() << "   z: " << v_origin.z() << std::endl;
+            std::cout << '\n';
+
+            tf::Quaternion q_rot;
+            q_rot = t.getRotation();
+            std::cout<<"getRotation: "<<std::endl;
+            std::cout << "x: " << q_rot.x() << "   y: " << q_rot.y() << "   z: " << q_rot.z() << "  w: " <<q_rot.w() << std::endl;
+            std::cout << '\n';
+
+            tf::Vector3 v_operator;
+            v_operator = t(v_center);
+            std::cout<<"Operator: "<<std::endl;
+            std::cout << "x: " << v_operator.x() << "   y: " << v_operator.y() << "   z: " << v_operator.z() << std::endl;
+            std::cout << '\n';
+
+            tf::Vector3 v_operator_mul;
+            v_operator_mul = t*v_center;
+            std::cout<<"Multipilikation Operator: "<<std::endl;
+            std::cout << "x: " << v_operator_mul.x() << "   y: " << v_operator_mul.y() << "   z: " << v_operator_mul.z() << std::endl;
+            std::cout << '\n';
+            std::cout << '\n';
+
+            volume.center_x = v_operator_mul.x();
+            volume.center_y = v_operator_mul.y();
+
+            /*tf::Matrix3x3 m(q);
             double roll, pitch, yaw;
             m.getRPY(roll, pitch, yaw);
-            volume.alpha = yaw;
-            volume.center_x = carla_traffic_light_info.transform.position.x;// + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
-            volume.center_y = carla_traffic_light_info.transform.position.y;// + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
+            volume.alpha = yaw;*/
+            //volume.center_x = carla_traffic_light_info.transform.position.x;// + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
+            //volume.center_y = carla_traffic_light_info.transform.position.y;// + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x/std::cos(volume.alpha);
             //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y/std::sin(volume.alpha);
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
@@ -74,7 +108,7 @@ private:
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
             //std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
 
-            std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde mit Winkel: "<<volume.alpha<<" aufgerufen"<<std::endl;
+            //std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde mit Winkel: "<<volume.alpha<<" aufgerufen"<<std::endl;
         }
     }
 
@@ -96,11 +130,11 @@ private:
         for (const auto& entry : id_to_triggervolume_) {
             unsigned int id = entry.first;
             triggervolume volume = entry.second;
-            //adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
-            adore::PLOT::plotArrow(prefix_+std::to_string(id), volume.center_x,volume.center_y,1,volume.alpha,5, 2,status_to_style_.at(id_to_status_[id]), figure_);
+            adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
+            //adore::PLOT::plotArrow(prefix_+std::to_string(id), volume.center_x,volume.center_y,1,volume.alpha,5, 2,status_to_style_.at(id_to_status_[id]), figure_);
             //std::cout<<id<<": "<<status_to_style_.at(id_to_status_[id])<<std::endl;
         }
-        std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
+        //std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
     }
 
     void periodic_run(const ros::TimerEvent &te)
