@@ -91,18 +91,18 @@ private:
             volume.center_x = v_operator_mul.x();
             volume.center_y = v_operator_mul.y();
 
-            /*tf::Matrix3x3 m(q);
+            tf::Matrix3x3 m(q);
             double roll, pitch, yaw;
             m.getRPY(roll, pitch, yaw);
-            volume.alpha = yaw;*/
+            volume.alpha = yaw;
             //volume.center_x = carla_traffic_light_info.transform.position.x;// + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
             //volume.center_y = carla_traffic_light_info.transform.position.y;// + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x/std::cos(volume.alpha);
             //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y/std::sin(volume.alpha);
             //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
             //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y;
-            volume.width = carla_traffic_light_info.trigger_volume.size.x;
-            volume.length = carla_traffic_light_info.trigger_volume.size.y;
+            volume.width = carla_traffic_light_info.trigger_volume.size.x;//*std::cos(volume.alpha);
+            volume.length = carla_traffic_light_info.trigger_volume.size.y;//*std::sin(volume.alpha);
             
             //std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
