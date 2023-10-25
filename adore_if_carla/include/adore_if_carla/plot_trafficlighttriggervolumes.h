@@ -53,9 +53,9 @@ private:
         {
             triggervolume volume;
 
-            /*double siny_cosp = 2 * (carla_traffic_light_info.transform.orientation.w * carla_traffic_light_info.transform.orientation.z + carla_traffic_light_info.transform.orientation.x * carla_traffic_light_info.transform.orientation.y);
+            double siny_cosp = 2 * (carla_traffic_light_info.transform.orientation.w * carla_traffic_light_info.transform.orientation.z + carla_traffic_light_info.transform.orientation.x * carla_traffic_light_info.transform.orientation.y);
             double cosy_cosp = 1 - 2 * (carla_traffic_light_info.transform.orientation.y * carla_traffic_light_info.transform.orientation.y + carla_traffic_light_info.transform.orientation.z * carla_traffic_light_info.transform.orientation.z);
-            volume.alpha = std::atan2(siny_cosp, cosy_cosp);*/
+            volume.alpha = std::atan2(siny_cosp, cosy_cosp);
             tf::Quaternion q(carla_traffic_light_info.transform.orientation.x, carla_traffic_light_info.transform.orientation.y, carla_traffic_light_info.transform.orientation.z, carla_traffic_light_info.transform.orientation.w);
             tf::Vector3 v(carla_traffic_light_info.transform.position.x, carla_traffic_light_info.transform.position.y, carla_traffic_light_info.transform.position.z);
             tf::Vector3 v_center(carla_traffic_light_info.trigger_volume.center.x, carla_traffic_light_info.trigger_volume.center.y, carla_traffic_light_info.trigger_volume.center.z);

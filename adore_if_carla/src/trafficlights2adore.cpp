@@ -16,6 +16,7 @@
 #include <thread>
 #include <cstdlib>
 #include <ros/ros.h>
+//#include <nav_msgs/Odometry.h>
 //#include <std_msgs/Float64.h>
 //#include <rosgraph_msgs/Clock.h>
 
@@ -42,7 +43,7 @@
 
 //#include <plotlablib/plcommands.h> 
 //#include <plotlablib/afigurestub.h>
-
+#include <adore_if_carla/plot_trafficlighttriggervolumes.h>
 
 
 /**
@@ -98,6 +99,7 @@ namespace adore
             ros::Publisher publisher_direct_;
             ros::Subscriber subscriber_traffic_lights_status_;
             //ros::Subscriber subscriber_traffic_lights_info_;
+            ros::Subscriber subscriber_vehicle_localization_;
 
             std::string namespace_carla_;
             ros::NodeHandle* n_;
@@ -106,6 +108,8 @@ namespace adore
             Betriebsmodus betriebsmodus = DIRECT;
             int discard_age = 1;    //in [sec]
             //double t_;
+            //nav_msgs::Odometry vehicle_position;
+            double vehicle_alpha, vehicle_x, vehicle_y;
 
             /*struct CarlaTrafficLightStatus
             {
@@ -147,6 +151,8 @@ namespace adore
                     "/carla/traffic_lights/status", 1, &Trafficlights2Adore::receiveTrafficLightsStatusList, this);
                 /*subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
                     "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receiveTrafficLightsInfoList, this);*/
+                subscriber_vehicle_localization_ = getRosNodeHandle()->subscribe<nav_msgs::Odometry>(
+                    "/vehicle0/localization", 1, &Trafficlights2Adore::receiveVehicleLocalization, this);
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
                 publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
@@ -214,6 +220,21 @@ namespace adore
                 {
                     sendDirect();
                 }
+            }
+
+            void receiveVehicleLocalization(const nav_msgs::OdometryConstPtr &in_msg)
+            {
+                vehicle_x = in_msg->pose.pose.position.x;
+                vehicle_y = in_msg->pose.pose.position.y;
+                /*vehicle_position.pose.pose.position.x = in_msg->pose.pose.position.x;
+                vehicle_position.pose.pose.position.y = in_msg->pose.pose.position.y;
+                vehicle_position.pose.pose.orientation.x = in_msg->pose.pose.orientation.x;
+                vehicle_position.pose.pose.orientation.y = in_msg->pose.pose.orientation.y;
+                vehicle_position.pose.pose.orientation.z = in_msg->pose.pose.orientation.z;
+                vehicle_position.pose.pose.orientation.w = in_msg->pose.pose.orientation.w;*/
+                double siny_cosp = 2 * (in_msg->pose.pose.orientation.w * in_msg->pose.pose.orientation.z + in_msg->pose.pose.orientation.x * in_msg->pose.pose.orientation.y);
+                double cosy_cosp = 1 - 2 * (in_msg->pose.pose.orientation.y * in_msg->pose.pose.orientation.y + in_msg->pose.pose.orientation.z * in_msg->pose.pose.orientation.z);
+                vehicle_alpha = std::atan2(siny_cosp, cosy_cosp);
             }
 
             /*void receiveTrafficLightsStatus(carla_msgs::CarlaTrafficLightStatus carla_traffic_light_status_)
@@ -333,6 +354,25 @@ namespace adore
 
                 publisher_mapem_.publish(out_msg);
             }
+
+            bool isVehicleInTriggerVolume()
+            {
+                for (const auto& entry : id_to_triggervolume_) {
+                    
+
+                    double relative_x = vehicle_x - entry.second.center_x;
+                    double relative_y = vehicle_y - entry.second.center_y;
+
+                    double distance = sqrt(relative_x * relative_x + relative_y * relative_y);
+                    double distance_alpha = atan2(relative_y, relative_x);
+                    
+
+                    
+                }
+
+                return false;
+            }
+
         };
     }  // namespace adore_if_carla
 }  // namespace adore

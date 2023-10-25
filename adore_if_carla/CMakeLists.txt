@@ -139,8 +139,8 @@ target_link_libraries(trafficlights2adore_node
                         PRIVATE
                           ${catkin_LIBRARIES}
                           libadore::apps
-                          #plotlablib::plotlablib
-                          #dlib::dlib
+                          plotlablib::plotlablib
+                          dlib::dlib
                           #carla_msgs
 )
 
