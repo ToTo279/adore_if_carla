@@ -26,7 +26,7 @@ private:
     };
     
     std::unordered_map<int,std::string> status_to_style_;
-    std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
+    //std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
     std::unordered_map<unsigned int,int> id_to_status_;
 
 	std::string prefix_;
@@ -59,50 +59,14 @@ private:
             tf::Quaternion q(carla_traffic_light_info.transform.orientation.x, carla_traffic_light_info.transform.orientation.y, carla_traffic_light_info.transform.orientation.z, carla_traffic_light_info.transform.orientation.w);
             tf::Vector3 v(carla_traffic_light_info.transform.position.x, carla_traffic_light_info.transform.position.y, carla_traffic_light_info.transform.position.z);
             tf::Vector3 v_center(carla_traffic_light_info.trigger_volume.center.x, carla_traffic_light_info.trigger_volume.center.y, carla_traffic_light_info.trigger_volume.center.z);
-
             tf::Transform t(q,v);
-            std::cout << "ID: " << carla_traffic_light_info.id << std::endl;
-
-            tf::Vector3 v_origin;
-            v_origin = t.getOrigin();
-            std::cout<<"getOrigin: "<<std::endl;
-            std::cout << "x: " << v_origin.x() << "   y: " << v_origin.y() << "   z: " << v_origin.z() << std::endl;
-            std::cout << '\n';
-
-            tf::Quaternion q_rot;
-            q_rot = t.getRotation();
-            std::cout<<"getRotation: "<<std::endl;
-            std::cout << "x: " << q_rot.x() << "   y: " << q_rot.y() << "   z: " << q_rot.z() << "  w: " <<q_rot.w() << std::endl;
-            std::cout << '\n';
-
             tf::Vector3 v_operator;
             v_operator = t(v_center);
-            std::cout<<"Operator: "<<std::endl;
-            std::cout << "x: " << v_operator.x() << "   y: " << v_operator.y() << "   z: " << v_operator.z() << std::endl;
-            std::cout << '\n';
 
-            tf::Vector3 v_operator_mul;
-            v_operator_mul = t*v_center;
-            std::cout<<"Multipilikation Operator: "<<std::endl;
-            std::cout << "x: " << v_operator_mul.x() << "   y: " << v_operator_mul.y() << "   z: " << v_operator_mul.z() << std::endl;
-            std::cout << '\n';
-            std::cout << '\n';
-
-            volume.center_x = v_operator_mul.x();
-            volume.center_y = v_operator_mul.y();
-
-            tf::Matrix3x3 m(q);
-            double roll, pitch, yaw;
-            m.getRPY(roll, pitch, yaw);
-            volume.alpha = yaw;
-            //volume.center_x = carla_traffic_light_info.transform.position.x;// + std::cos(volume.alpha)*carla_traffic_light_info.trigger_volume.center.x;
-            //volume.center_y = carla_traffic_light_info.transform.position.y;// + std::sin(volume.alpha)*carla_traffic_light_info.trigger_volume.center.y;
-            //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x/std::cos(volume.alpha);
-            //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y/std::sin(volume.alpha);
-            //volume.center_x = carla_traffic_light_info.transform.position.x + carla_traffic_light_info.trigger_volume.center.x;
-            //volume.center_y = carla_traffic_light_info.transform.position.y + carla_traffic_light_info.trigger_volume.center.y;
-            volume.width = carla_traffic_light_info.trigger_volume.size.x;//*std::cos(volume.alpha);
-            volume.length = carla_traffic_light_info.trigger_volume.size.y;//*std::sin(volume.alpha);
+            volume.center_x = v_operator.x();
+            volume.center_y = v_operator.y();
+            volume.width = carla_traffic_light_info.trigger_volume.size.x;
+            volume.length = carla_traffic_light_info.trigger_volume.size.y;
             
             //std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
@@ -143,14 +107,9 @@ private:
     }
 
 public:
+    std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
     PlotTrafficLightTriggerVolumes()
     {
-		/*status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::RED,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::YELLOW,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::GREEN,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::OFF,"LineColor=0,0,1;LineWidth=2");
-		status_to_style_.emplace(carla_msgs::CarlaTrafficLightStatus::UNKNOWN,"LineColor=0,0,1;LineWidth=2");*/
-
         status_to_style_.emplace(0, "LineColor=1,0,0;LineWidth=2"); // RED
         status_to_style_.emplace(1, "LineColor=1,1,0;LineWidth=2"); // YELLOW
         status_to_style_.emplace(2, "LineColor=0,1,0;LineWidth=2"); // GREEN

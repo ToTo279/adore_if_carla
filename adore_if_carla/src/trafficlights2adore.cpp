@@ -16,7 +16,7 @@
 #include <thread>
 #include <cstdlib>
 #include <ros/ros.h>
-//#include <nav_msgs/Odometry.h>
+#include <nav_msgs/Odometry.h>
 //#include <std_msgs/Float64.h>
 //#include <rosgraph_msgs/Clock.h>
 
@@ -79,6 +79,7 @@ namespace adore
                 bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
                 std::cout << "Objects2Adore: namespace of the carla vehicle is: "
                           << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
+                timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&Trafficlights2Adore::periodic_run, this, std::placeholders::_1));
                 initROSConnections();
                 getConnections();
             }
@@ -110,6 +111,10 @@ namespace adore
             //double t_;
             //nav_msgs::Odometry vehicle_position;
             double vehicle_alpha, vehicle_x, vehicle_y;
+
+            ros::Timer timer_;
+
+            PlotTrafficLightTriggerVolumes plt_;
 
             /*struct CarlaTrafficLightStatus
             {
@@ -159,7 +164,10 @@ namespace adore
                 publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
                 publisher_direct_ = getRosNodeHandle()->advertise<adore_if_ros_msg::TCDConnectionStateTrace>("ENV/tcd", 500, true);
             }
-
+            void periodic_run(const ros::TimerEvent &te)
+            {
+                isVehicleInTriggerVolume();
+            }
             /*double getTime()
             {
                 double time = 0;
@@ -355,9 +363,9 @@ namespace adore
                 publisher_mapem_.publish(out_msg);
             }
 
-            bool isVehicleInTriggerVolume()
+            /*bool isVehicleInTriggerVolume()
             {
-                for (const auto& entry : id_to_triggervolume_) {
+                for (const auto& entry : plt_.id_to_triggervolume_) {
                     
 
                     double relative_x = vehicle_x - entry.second.center_x;
@@ -371,7 +379,26 @@ namespace adore
                 }
 
                 return false;
+            }*/
+            bool isVehicleInTriggerVolume()
+            {
+                for (const auto& entry : plt_.id_to_triggervolume_)
+                {
+                    double min_x = entry.second.center_x - entry.second.width / 2.0;
+                    double max_x = entry.second.center_x + entry.second.width / 2.0;
+                    double min_y = entry.second.center_y - entry.second.length / 2.0;
+                    double max_y = entry.second.center_y + entry.second.length / 2.0;
+
+                    if (vehicle_x >= min_x && vehicle_x <= max_x && vehicle_y >= min_y && vehicle_y <= max_y)
+                    {
+                        std::cout<<"true"<<std::endl;
+                        return true;
+                    }
+                }
+                std::cout<<"false"<<std::endl;
+                return false;
             }
+
 
         };
     }  // namespace adore_if_carla
