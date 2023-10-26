@@ -72,16 +72,20 @@ namespace adore
             void init(int argc, char** argv, double rate, std::string nodename)
             {
                 // Although the application has no periodically called functions, the rate is required for scheduling
-                ros::init(argc, argv, nodename);
-                ros::NodeHandle* n = new ros::NodeHandle();
-                n_ = n;
-                initSim();
+                //ros::init(argc, argv, nodename);
+                //ros::NodeHandle* n = new ros::NodeHandle();
+                //n_ = n;
+                //initSim();
+                /* NOTWENDIG???
                 bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
                 std::cout << "Objects2Adore: namespace of the carla vehicle is: "
-                          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;
+                          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;*/
+                std::cout<<"in init"<<std::endl;
                 timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&Trafficlights2Adore::periodic_run, this, std::placeholders::_1));
+                std::cout<<"timer created"<<std::endl;
                 initROSConnections();
-                getConnections();
+                std::cout<<"init ros connection aufgerufen"<<std::endl;
+                //getConnections();
             }
 
             void run()
@@ -154,18 +158,22 @@ namespace adore
             {
                 subscriber_traffic_lights_status_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightStatusList>(
                     "/carla/traffic_lights/status", 1, &Trafficlights2Adore::receiveTrafficLightsStatusList, this);
+                std::cout<<"subscriber_traffic_lights_status_ init"<<std::endl;
                 /*subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
                     "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receiveTrafficLightsInfoList, this);*/
                 subscriber_vehicle_localization_ = getRosNodeHandle()->subscribe<nav_msgs::Odometry>(
                     "/vehicle0/localization", 1, &Trafficlights2Adore::receiveVehicleLocalization, this);
+                std::cout<<"subscriber_vehicle_localization_ init"<<std::endl;
                 publisher_spatem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimSPATEM>("/SIM/v2x/SPATEM", 1);
                 publisher_mapem_sim_ = getRosNodeHandle()->advertise<adore_v2x_sim::SimMAPEM>("/SIM/v2x/MAPEM", 1);
                 publisher_spatem_ = getRosNodeHandle()->advertise<dsrc_v2_spatem_pdu_descriptions::SPATEM>("v2x/incoming/SPATEM", 1);
                 publisher_mapem_ = getRosNodeHandle()->advertise<dsrc_v2_mapem_pdu_descriptions::MAPEM>("v2x/incoming/MAPEM", 1);
                 publisher_direct_ = getRosNodeHandle()->advertise<adore_if_ros_msg::TCDConnectionStateTrace>("ENV/tcd", 500, true);
+                std::cout<<"publisher init"<<std::endl;
             }
             void periodic_run(const ros::TimerEvent &te)
             {
+                std::cout<<"periodic_run aufgerufen"<<std::endl;
                 isVehicleInTriggerVolume();
             }
             /*double getTime()
@@ -179,7 +187,7 @@ namespace adore
                 return time;   
             }*/
 
-            void getConnections()
+            /*void getConnections()
             {
                 std::ifstream inputFile("trafficlightsConnections.txt");
 
@@ -197,7 +205,7 @@ namespace adore
                 }
                 
                 inputFile.close(); 
-            }
+            }*/
 
             void receiveTrafficLightsStatusList(carla_msgs::CarlaTrafficLightStatusList carla_traffic_light_status_list_)
             {
@@ -406,11 +414,16 @@ namespace adore
 
 int main(int argc, char** argv)
 {
-    /*ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
-    PlotTrafficLightTriggerVolumes ptltv;
+    std::cout<<"main: "<<std::endl;
+    ros::init(argc, argv, "trafficlights2adore");
+    std::cout<<"ros init aufgerufen"<<std::endl;
+    /*PlotTrafficLightTriggerVolumes ptltv;
     ptltv.run();*/
     adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
     trafficlights2adore.init(argc, argv, 10.0, "trafficlights2adore");
+    std::cout<<"init aufgerufen"<<std::endl;
     trafficlights2adore.run();
-    return 0;
+    std::cout<<"run aufgerufen"<<std::endl;
+    std::cout<<""<<std::endl;
+    //return 0;
 }
