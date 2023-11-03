@@ -24,6 +24,11 @@ private:
         double length;
         double alpha;
     };
+    struct pair
+    {
+        double x;
+        double y;
+    };
     
     std::unordered_map<int,std::string> status_to_style_;
     //std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
@@ -65,8 +70,14 @@ private:
 
             volume.center_x = v_operator.x();
             volume.center_y = v_operator.y();
-            volume.width = carla_traffic_light_info.trigger_volume.size.x;
-            volume.length = carla_traffic_light_info.trigger_volume.size.y;
+            volume.width = carla_traffic_light_info.trigger_volume.size.y;
+            volume.length = carla_traffic_light_info.trigger_volume.size.x;
+
+            /*double half_width = 0.5 * carla_traffic_light_info.trigger_volume.size.x;
+            double half_length = 0.5 * carla_traffic_light_info.trigger_volume.size.y;
+
+            volume.width = std::abs(carla_traffic_light_info.trigger_volume.size.x * std::cos(volume.alpha)) + std::abs(carla_traffic_light_info.trigger_volume.size.y * std::sin(volume.alpha));
+            volume.length = std::abs(carla_traffic_light_info.trigger_volume.size.x * std::sin(volume.alpha)) + std::abs(carla_traffic_light_info.trigger_volume.size.y * std::cos(volume.alpha));*/
             
             //std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
@@ -91,15 +102,38 @@ private:
 
     void plot_triggger_volumes()
     {
-        for (const auto& entry : id_to_triggervolume_) {
-            unsigned int id = entry.first;
-            triggervolume volume = entry.second;
-            adore::PLOT::plotRectangle(prefix_+std::to_string(id), volume.center_x, volume.center_y, volume.length, volume.width, figure_, status_to_style_.at(id_to_status_[id]), volume.alpha);
-            //adore::PLOT::plotArrow(prefix_+std::to_string(id), volume.center_x,volume.center_y,1,volume.alpha,5, 2,status_to_style_.at(id_to_status_[id]), figure_);
-            //std::cout<<id<<": "<<status_to_style_.at(id_to_status_[id])<<std::endl;
+        for (const auto& entry : id_to_triggervolume_)
+        {
+            //unsigned int id = entry.first;
+            //triggervolume volume = entry.second;
+            adore::PLOT::plotRectangle(prefix_+std::to_string(entry.first), entry.second.center_x, entry.second.center_y, entry.second.length, entry.second.width, figure_, status_to_style_.at(id_to_status_[entry.first]), entry.second.alpha);
+            //adore::PLOT::plotArrow(prefix_+std::to_string(entry.first), entry.second.center_x,entry.second.center_y,1,entry.second.alpha,5, 2,status_to_style_.at(id_to_status_[entry.first]), figure_);
         }
         //std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
     }
+    void PointsInTriggerVolume(double center_x, double center_y, double width, double length, double alpha)
+    {
+        for (const auto& entry : id_to_triggervolume_)
+        {
+            double middle_top_x = entry.second.center_x + (entry.second.width / 2) * std::sin(entry.second.alpha);
+            double middle_top_y = entry.second.center_y + (entry.second.width / 2) * std::cos(entry.second.alpha);
+
+            double middle_bottom_x = entry.second.center_x - (entry.second.width / 2) * std::sin(entry.second.alpha);
+            double middle_bottom_y = entry.second.center_y - (entry.second.width / 2) * std::cos(entry.second.alpha);
+
+            double middle_left_x = entry.second.center_x - (entry.second.length / 2) * std::cos(entry.second.alpha);
+            double middle_left_y = entry.second.center_y - (entry.second.length / 2) * std::sin(entry.second.alpha);
+
+            double middle_right_x = entry.second.center_x + (entry.second.length / 2) * std::cos(entry.second.alpha);
+            double middle_right_y = entry.second.center_y + (entry.second.length / 2) * std::sin(entry.second.alpha);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"1", middle_top_x, middle_top_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"2", middle_bottom_x, middle_bottom_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"3", middle_left_x, middle_left_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"4", middle_right_x, middle_right_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+        }
+
+    }
+
 
     void periodic_run(const ros::TimerEvent &te)
     {

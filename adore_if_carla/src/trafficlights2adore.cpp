@@ -44,7 +44,7 @@
 //#include <plotlablib/plcommands.h> 
 //#include <plotlablib/afigurestub.h>
 #include <adore_if_carla/plot_trafficlighttriggervolumes.h>
-
+#include <adore/env/threelaneviewdecoupled.h>
 
 /**
  * This nodes ...
@@ -67,14 +67,23 @@ namespace adore
           public:
             Trafficlights2Adore()
             {
+                three_lanes_ = adore::env::ThreeLaneViewDecoupled();
             }
 
+            /*TO DO:
+            3 lanes view im konstruktor instanzieren (threelaneview)
+            3 lanes view in periodischer Funktion updaten (.update)
+            4 (parametrierbar mit Varble) Punkte aus TriggerVolume extrahieren
+            mit 3 lanes View die realtiven koordinaten zu jedem Punkt bestimmen (.torelativecoordinates)
+            überprrüfen, ob Punkt in Reichweite des Fahrzeugs und innerhalb Lane ist
+                Reichweite: Abstand s-Koordinate TriggerVolume - s-Koordinate Fahrzeug 
+                Innerhlab Lane: n-Koordinate innerhalb von .currentlane().getleftborder(s_triggerVolume) & ...geetrightborder*/
             void init(int argc, char** argv, double rate, std::string nodename)
             {
                 // Although the application has no periodically called functions, the rate is required for scheduling
-                //ros::init(argc, argv, nodename);
-                //ros::NodeHandle* n = new ros::NodeHandle();
-                //n_ = n;
+                ros::init(argc, argv, nodename);
+                ros::NodeHandle* n = new ros::NodeHandle();
+                n_ = n;
                 //initSim();
                 /* NOTWENDIG???
                 bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
@@ -115,6 +124,7 @@ namespace adore
             //double t_;
             //nav_msgs::Odometry vehicle_position;
             double vehicle_alpha, vehicle_x, vehicle_y;
+            adore::env::ThreeLaneViewDecoupled three_lanes_;/**<lane-based representation of environment*/
 
             ros::Timer timer_;
 
@@ -174,6 +184,7 @@ namespace adore
             void periodic_run(const ros::TimerEvent &te)
             {
                 std::cout<<"periodic_run aufgerufen"<<std::endl;
+                three_lanes_.update();
                 isVehicleInTriggerVolume();
             }
             /*double getTime()
@@ -388,7 +399,8 @@ namespace adore
 
                 return false;
             }*/
-            bool isVehicleInTriggerVolume()
+            /*bool isVehicleInTriggerVolume()
+            //TO DO Winkel beachten
             {
                 for (const auto& entry : plt_.id_to_triggervolume_)
                 {
@@ -405,7 +417,26 @@ namespace adore
                 }
                 std::cout<<"false"<<std::endl;
                 return false;
+            }*/
+            bool isVehicleInTriggerVolume()
+            {
+                for (const auto& entry : plt_.id_to_triggervolume_)
+                {
+                    double min_x = entry.second.center_x - (entry.second.width * std::abs(std::cos(entry.second.alpha)) + entry.second.length * std::abs(std::sin(entry.second.alpha))) / 2.0;
+                    double max_x = entry.second.center_x + (entry.second.width * std::abs(std::cos(entry.second.alpha)) + entry.second.length * std::abs(std::sin(entry.second.alpha))) / 2.0;
+                    double min_y = entry.second.center_y - (entry.second.length * std::abs(std::cos(entry.second.alpha)) + entry.second.width * std::abs(std::sin(entry.second.alpha))) / 2.0;
+                    double max_y = entry.second.center_y + (entry.second.length * std::abs(std::cos(entry.second.alpha)) + entry.second.width * std::abs(std::sin(entry.second.alpha))) / 2.0;
+
+                    if (vehicle_x >= min_x && vehicle_x <= max_x && vehicle_y >= min_y && vehicle_y <= max_y)
+                    {
+                        std::cout << "true" << std::endl;
+                        return true;
+                    }
+                }
+                std::cout << "false" << std::endl;
+                return false;
             }
+
 
 
         };
