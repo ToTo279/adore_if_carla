@@ -417,6 +417,7 @@ namespace adore
                 }
                 //lv_.toRelativeCoordinates(x_replan.getX(), x_replan.getY(), s, n);
             }*/
+            float range = 150;
             bool isVehicleInTriggerVolume()
             {
                 for (const auto& entry : plt_.points)
@@ -429,17 +430,17 @@ namespace adore
                         lv_.getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
                         lv_.getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
 
-                        double range = std::abs(triggerVolume_s - vehicle_s);
+                        double distance = std::abs(triggerVolume_s - vehicle_s);
 
-                        //if (/*???*/ <= range)
-                        //{
+                        if (range <= distance)
+                        {
                             //if (n >= lv_.getCurrentLane().getLeftBorders()->getBorders(s) && n <= lv_.getCurrentLane().getRightBorders()->getBorders(s))
                             if (vehicle_n >= lv_.getCurrentLane()->getOffsetOfLeftBorder(triggerVolume_s) && vehicle_n <= lv_.getCurrentLane()->getOffsetOfRightBorder(triggerVolume_s))
                             {
                                 std::cout << "Punkt in Reichweite und innerhalb der Lane" << std::endl;
                                 return true;
                             }//.currentlane().getleftborder(s_triggerVolume)
-                        //}
+                        }
                     }
                 }
 
