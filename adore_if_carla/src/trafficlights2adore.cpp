@@ -65,9 +65,9 @@ namespace adore
         class Trafficlights2Adore
         {
           public:
-            Trafficlights2Adore()
+            Trafficlights2Adore() : lv_(false)
             {
-                three_lanes_ = adore::env::ThreeLaneViewDecoupled();
+                //lv_ = adore::env::ThreeLaneViewDecoupled();
             }
 
             /*TO DO:
@@ -124,7 +124,7 @@ namespace adore
             //double t_;
             //nav_msgs::Odometry vehicle_position;
             double vehicle_alpha, vehicle_x, vehicle_y;
-            adore::env::ThreeLaneViewDecoupled three_lanes_;/**<lane-based representation of environment*/
+            adore::env::ThreeLaneViewDecoupled lv_;/**<lane-based representation of environment*/
 
             ros::Timer timer_;
 
@@ -184,7 +184,7 @@ namespace adore
             void periodic_run(const ros::TimerEvent &te)
             {
                 std::cout<<"periodic_run aufgerufen"<<std::endl;
-                three_lanes_.update();
+                lv_.update();
                 isVehicleInTriggerVolume();
             }
             /*double getTime()
@@ -382,43 +382,8 @@ namespace adore
                 publisher_mapem_.publish(out_msg);
             }
 
+    
             /*bool isVehicleInTriggerVolume()
-            {
-                for (const auto& entry : plt_.id_to_triggervolume_) {
-                    
-
-                    double relative_x = vehicle_x - entry.second.center_x;
-                    double relative_y = vehicle_y - entry.second.center_y;
-
-                    double distance = sqrt(relative_x * relative_x + relative_y * relative_y);
-                    double distance_alpha = atan2(relative_y, relative_x);
-                    
-
-                    
-                }
-
-                return false;
-            }*/
-            /*bool isVehicleInTriggerVolume()
-            //TO DO Winkel beachten
-            {
-                for (const auto& entry : plt_.id_to_triggervolume_)
-                {
-                    double min_x = entry.second.center_x - entry.second.width / 2.0;
-                    double max_x = entry.second.center_x + entry.second.width / 2.0;
-                    double min_y = entry.second.center_y - entry.second.length / 2.0;
-                    double max_y = entry.second.center_y + entry.second.length / 2.0;
-
-                    if (vehicle_x >= min_x && vehicle_x <= max_x && vehicle_y >= min_y && vehicle_y <= max_y)
-                    {
-                        std::cout<<"true"<<std::endl;
-                        return true;
-                    }
-                }
-                std::cout<<"false"<<std::endl;
-                return false;
-            }*/
-            bool isVehicleInTriggerVolume()
             {
                 for (const auto& entry : plt_.id_to_triggervolume_)
                 {
@@ -434,6 +399,51 @@ namespace adore
                     }
                 }
                 std::cout << "false" << std::endl;
+                return false;
+            }*/
+            /*bool isVehicleInTriggerVolume()
+            {
+                //std::vector<double> s,n;
+                std::unordered_map<unsigned int,std::unordered_map<unsigned int, double>> s,n;
+                for (const auto& entry : plt_.points)
+                {
+                    const std::unordered_map<unsigned int, PlotTrafficLightTriggerVolumes::pair>& innerMap = entry.second;
+                    //const unsigned int id = entry.first
+                    for (const auto& entry_ : innerMap)
+                    {
+                        lv_.getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, s[entry.first][entry_.first], n[entry.first][entry_.first]);
+                    }
+                    //lv_.toRelativeCoordinates(entry.second, x_replan.getY(), s.at(entry.first), n.at(entry.first));
+                }
+                //lv_.toRelativeCoordinates(x_replan.getX(), x_replan.getY(), s, n);
+            }*/
+            bool isVehicleInTriggerVolume()
+            {
+                for (const auto& entry : plt_.points)
+                {
+                    const std::unordered_map<unsigned int, PlotTrafficLightTriggerVolumes::pair>& innerMap = entry.second;
+                    for (const auto& entry_ : innerMap)
+                    {
+                        double triggerVolume_s, triggerVolume_n, vehicle_s, vehicle_n;
+
+                        lv_.getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
+                        lv_.getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
+
+                        double range = std::abs(triggerVolume_s - vehicle_s);
+
+                        //if (/*???*/ <= range)
+                        //{
+                            //if (n >= lv_.getCurrentLane().getLeftBorders()->getBorders(s) && n <= lv_.getCurrentLane().getRightBorders()->getBorders(s))
+                            if (vehicle_n >= lv_.getCurrentLane()->getOffsetOfLeftBorder(triggerVolume_s) && vehicle_n <= lv_.getCurrentLane()->getOffsetOfRightBorder(triggerVolume_s))
+                            {
+                                std::cout << "Punkt in Reichweite und innerhalb der Lane" << std::endl;
+                                return true;
+                            }//.currentlane().getleftborder(s_triggerVolume)
+                        //}
+                    }
+                }
+
+                std::cout << "Punkt nicht in Reichweite oder außerhalb der Lane" << std::endl;
                 return false;
             }
 

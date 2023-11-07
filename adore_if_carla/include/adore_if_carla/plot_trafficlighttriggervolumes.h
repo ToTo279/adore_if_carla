@@ -24,13 +24,9 @@ private:
         double length;
         double alpha;
     };
-    struct pair
-    {
-        double x;
-        double y;
-    };
     
-    std::unordered_map<int,std::string> status_to_style_;
+    
+    std::unordered_map<unsigned int,std::string> status_to_style_;
     //std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
     std::unordered_map<unsigned int,int> id_to_status_;
 
@@ -111,25 +107,40 @@ private:
         }
         //std::cout<<"plot trigger volumes aufgerufen"<<std::endl;
     }
-    void PointsInTriggerVolume(double center_x, double center_y, double width, double length, double alpha)
+    void PointsInTriggerVolume()
     {
         for (const auto& entry : id_to_triggervolume_)
         {
-            double middle_top_x = entry.second.center_x + (entry.second.width / 2) * std::sin(entry.second.alpha);
-            double middle_top_y = entry.second.center_y + (entry.second.width / 2) * std::cos(entry.second.alpha);
+            pair p1 , p2 , p3 , p4;
 
-            double middle_bottom_x = entry.second.center_x - (entry.second.width / 2) * std::sin(entry.second.alpha);
-            double middle_bottom_y = entry.second.center_y - (entry.second.width / 2) * std::cos(entry.second.alpha);
+            p1.x = entry.second.center_x + (entry.second.length / 2) * std::cos(entry.second.alpha);
+            p1.y = entry.second.center_y + (entry.second.length / 2) * std::sin(entry.second.alpha);
+            p2.x = entry.second.center_x + (entry.second.length * 1/6) * std::cos(entry.second.alpha);
+            p2.y = entry.second.center_y + (entry.second.length * 1/6) * std::sin(entry.second.alpha);
+            p3.x = entry.second.center_x - (entry.second.length / 2) * std::cos(entry.second.alpha);
+            p3.y = entry.second.center_y - (entry.second.length / 2) * std::sin(entry.second.alpha);
+            p4.x = entry.second.center_x - (entry.second.length * 1/6) * std::cos(entry.second.alpha);
+            p4.y = entry.second.center_y - (entry.second.length * 1/6) * std::sin(entry.second.alpha);
 
-            double middle_left_x = entry.second.center_x - (entry.second.length / 2) * std::cos(entry.second.alpha);
-            double middle_left_y = entry.second.center_y - (entry.second.length / 2) * std::sin(entry.second.alpha);
+            points[entry.first][0] = p1;
+            points[entry.first][1] = p2;
+            points[entry.first][2] = p3;
+            points[entry.first][3] = p4;
 
-            double middle_right_x = entry.second.center_x + (entry.second.length / 2) * std::cos(entry.second.alpha);
-            double middle_right_y = entry.second.center_y + (entry.second.length / 2) * std::sin(entry.second.alpha);
-            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"1", middle_top_x, middle_top_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
-            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"2", middle_bottom_x, middle_bottom_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
-            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"3", middle_left_x, middle_left_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
-            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"4", middle_right_x, middle_right_y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            /*points[entry.first][0].x = entry.second.center_x + (entry.second.length / 2) * std::cos(entry.second.alpha);
+            points[entry.first][0].y = entry.second.center_y + (entry.second.length / 2) * std::sin(entry.second.alpha);
+            points[entry.first][1].x = entry.second.center_x + (entry.second.length * 1/6) * std::cos(entry.second.alpha);
+            points[entry.first][1].y = entry.second.center_y + (entry.second.length * 1/6) * std::sin(entry.second.alpha);
+            points[entry.first][2].x = entry.second.center_x - (entry.second.length / 2) * std::cos(entry.second.alpha);
+            points[entry.first][2].y = entry.second.center_y - (entry.second.length / 2) * std::sin(entry.second.alpha);
+            points[entry.first][3].x = entry.second.center_x - (entry.second.length * 1/6) * std::cos(entry.second.alpha);
+            points[entry.first][3].y = entry.second.center_y - (entry.second.length * 1/6) * std::sin(entry.second.alpha);*/
+
+            
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"1", p1.x, p1.y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"2", p3.x, p3.y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"3", p2.x, p2.y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
+            adore::PLOT::plotPosition(prefix_+std::to_string(entry.first)+"4", p4.x, p4.y, figure_, status_to_style_.at(id_to_status_[entry.first]), 0.5);
         }
 
     }
@@ -138,10 +149,18 @@ private:
     void periodic_run(const ros::TimerEvent &te)
     {
         plot_triggger_volumes();
+        PointsInTriggerVolume();
     }
 
 public:
+    struct pair
+        {
+            double x;
+            double y;
+        };
     std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
+    //std::unordered_map<unsigned int,std::vector<pair>[4]> points;
+    std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> points;
     PlotTrafficLightTriggerVolumes()
     {
         status_to_style_.emplace(0, "LineColor=1,0,0;LineWidth=2"); // RED
