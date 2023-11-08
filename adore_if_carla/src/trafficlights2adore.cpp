@@ -46,6 +46,7 @@
 #include <adore_if_carla/plot_trafficlighttriggervolumes.h>
 #include <adore/env/threelaneviewdecoupled.h>
 
+//#include <adore_if_ros/factorycollection.h>
 /**
  * This nodes ...
  */
@@ -81,12 +82,22 @@ namespace adore
             void init(int argc, char** argv, double rate, std::string nodename)
             {
                 // Although the application has no periodically called functions, the rate is required for scheduling
-                ros::init(argc, argv, nodename);
-                ros::NodeHandle* n = new ros::NodeHandle();
-                n_ = n;
+                //ros::init(argc, argv, nodename);
+                //FactoryCollection::init(getRosNodeHandle());
+                //std::cout<<"FactoryCollection init aufgerufen"<<std::endl;
+                ros::NodeHandle* n_ = new ros::NodeHandle();
+                //n_ = n;
+                //ros::NodeHandle* n_ = ros::NodeHandle();
+                
+
+                lv_ = adore::env::ThreeLaneViewDecoupled();
+                std::cout<<"lv_ init"<<std::endl;
+
+
+                //Baseapp::initSim();
                 //initSim();
-                /* NOTWENDIG???
-                bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
+                //NOTWENDIG???
+                /*bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
                 std::cout << "Objects2Adore: namespace of the carla vehicle is: "
                           << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;*/
                 std::cout<<"in init"<<std::endl;
@@ -459,11 +470,20 @@ int main(int argc, char** argv)
     std::cout<<"main: "<<std::endl;
     ros::init(argc, argv, "trafficlights2adore");
     std::cout<<"ros init aufgerufen"<<std::endl;
+    //ros::NodeHandle* n_ = new ros::NodeHandle();
+    //FactoryCollection::init(getRosNodeHandle());
+    //std::cout<<"FactoryCollection init aufgerufen"<<std::endl;
     /*PlotTrafficLightTriggerVolumes ptltv;
     ptltv.run();*/
+    
     adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
+    std::cout<<"trafficlights2adore instanziert"<<std::endl;
+    //lv_ = adore::env::ThreeLaneViewDecoupled();
+    //std::cout<<"lv_ init"<<std::endl;
     trafficlights2adore.init(argc, argv, 10.0, "trafficlights2adore");
     std::cout<<"init aufgerufen"<<std::endl;
+    //trafficlights2adore.initROSConnections();
+    //std::cout<<"init ros connection aufgerufen"<<std::endl;
     trafficlights2adore.run();
     std::cout<<"run aufgerufen"<<std::endl;
     std::cout<<""<<std::endl;

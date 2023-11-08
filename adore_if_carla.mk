@@ -38,6 +38,8 @@ include ${ADORE_IF_CARLA_SUBMODULES_PATH}/adore_if_ros_msg/adore_if_ros_msg.mk
 include ${ADORE_IF_CARLA_SUBMODULES_PATH}/v2x_if_ros_msg/v2x_if_ros_msg.mk
 include ${ADORE_IF_CARLA_SUBMODULES_PATH}/adore_v2x_sim/adore_v2x_sim.mk
 
+include ${ADORE_IF_CARLA_SUBMODULES_PATH}/adore_if_ros/adore_if_ros.mk
+
 #ifeq ($(shell dpkg-query -W -f='${Status}' nvidia-docker2 2>/dev/null | grep -c "installed"),0)
 #    $(error "ERROR: The apt package 'nvidia-docker2' needed by adore_if_carla is installed.")
 #endif

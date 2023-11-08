@@ -48,6 +48,11 @@ list(APPEND CMAKE_PREFIX_PATH "${PLOTLABLIB_CMAKE_INSTALL_PATH}")
 set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../v2x_if_ros_msg/v2x_if_ros_msg/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
+#set(ADORE_IF_ROS_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../adore_if_ros_/adore_if_ros/build/install")
+#list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_CMAKE_INSTALL_PATH}")
+set(ADORE_IF_ROS_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../adore_if_ros/adore_if_ros/build/install")
+list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_CMAKE_INSTALL_PATH}")
+
 #add_library(qpoases::qpoases STATIC IMPORTED GLOBAL)
 #set_property(TARGET qpoases::qpoases PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install/lib/libqpOASES.a)
 
@@ -69,6 +74,7 @@ find_package(catkin REQUIRED COMPONENTS
     ackermann_msgs
     #libadore
     tf
+    #adore_if_ros
 )
 
 find_package(carla_msgs CONFIG REQUIRED)
@@ -141,6 +147,7 @@ target_link_libraries(trafficlights2adore_node
                           libadore::apps
                           plotlablib::plotlablib
                           dlib::dlib
+                          #adore_if_ros::adore_if_ros
                           #carla_msgs
 )
 
