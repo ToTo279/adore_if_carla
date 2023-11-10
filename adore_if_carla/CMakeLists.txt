@@ -48,10 +48,10 @@ list(APPEND CMAKE_PREFIX_PATH "${PLOTLABLIB_CMAKE_INSTALL_PATH}")
 set(V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../v2x_if_ros_msg/v2x_if_ros_msg/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${V2X_IF_ROS_MSG_CMAKE_INSTALL_PATH}")
 
-#set(ADORE_IF_ROS_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../adore_if_ros_/adore_if_ros/build/install")
-#list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_CMAKE_INSTALL_PATH}")
-set(ADORE_IF_ROS_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../adore_if_ros/adore_if_ros/build/install")
+set(ADORE_IF_ROS_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../adore_if_ros_/adore_if_ros/build/install")
 list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_CMAKE_INSTALL_PATH}")
+#set(ADORE_IF_ROS_CMAKE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../adore_if_ros/adore_if_ros/build/install")
+#list(APPEND CMAKE_PREFIX_PATH "${ADORE_IF_ROS_CMAKE_INSTALL_PATH}")
 
 #add_library(qpoases::qpoases STATIC IMPORTED GLOBAL)
 #set_property(TARGET qpoases::qpoases PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../libadore/libadore/build/install/lib/libqpOASES.a)
@@ -63,7 +63,7 @@ list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cppzmq/build/insta
 #/share/cmake/cppzmq/cppzmqConfig.cmake
 message(WARNING ${CMAKE_CURRENT_SOURCE_DIR})
 
-
+#list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../adore_if_ros/adore_if_ros/build/install")
 
 #set(carla_msgs_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -77,6 +77,7 @@ find_package(catkin REQUIRED COMPONENTS
     #adore_if_ros
 )
 
+
 find_package(carla_msgs CONFIG REQUIRED)
 
 find_package(adore_v2x_sim CONFIG REQUIRED)
@@ -87,6 +88,10 @@ find_package(plotlablib CONFIG REQUIRED)
 find_package(cppzmq CONFIG REQUIRED)
 find_package(ZeroMQ CONFIG REQUIRED)
 find_package(dlib CONFIG REQUIRED)
+
+
+find_package(adore_if_ros_scheduling CONFIG REQUIRED)
+find_package(adore_if_ros CONFIG REQUIRED)
 
 #find_package(libadore CONFIG REQUIRED)
 
@@ -140,7 +145,11 @@ target_link_libraries(ackermanncommand2carla_node PRIVATE ${catkin_LIBRARIES})
 
 add_executable(trafficlights2adore_node)
 target_sources(trafficlights2adore_node PRIVATE src/trafficlights2adore.cpp)
-target_include_directories(trafficlights2adore_node PRIVATE include ${catkin_INCLUDE_DIRS})
+target_include_directories(trafficlights2adore_node
+                        PRIVATE
+                        include
+                        ${catkin_INCLUDE_DIRS}
+                        ${adore_if_ros_INCLUDE_DIRS})
 target_link_libraries(trafficlights2adore_node
                         PRIVATE
                           ${catkin_LIBRARIES}

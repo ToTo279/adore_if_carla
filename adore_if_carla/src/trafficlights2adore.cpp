@@ -83,9 +83,10 @@ namespace adore
             {
                 // Although the application has no periodically called functions, the rate is required for scheduling
                 //ros::init(argc, argv, nodename);
-                //FactoryCollection::init(getRosNodeHandle());
-                //std::cout<<"FactoryCollection init aufgerufen"<<std::endl;
+                
                 ros::NodeHandle* n_ = new ros::NodeHandle();
+                FactoryCollection::init(getRosNodeHandle());
+                std::cout<<"FactoryCollection init aufgerufen"<<std::endl;
                 //n_ = n;
                 //ros::NodeHandle* n_ = ros::NodeHandle();
                 
