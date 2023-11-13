@@ -90,8 +90,8 @@ find_package(ZeroMQ CONFIG REQUIRED)
 find_package(dlib CONFIG REQUIRED)
 
 
-find_package(adore_if_ros_scheduling CONFIG REQUIRED)
 find_package(adore_if_ros CONFIG REQUIRED)
+find_package(adore_if_ros_scheduling CONFIG REQUIRED)
 
 #find_package(libadore CONFIG REQUIRED)
 

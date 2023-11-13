@@ -2,6 +2,8 @@ ARG PROJECT="adore_if_carla"
 ARG REQUIREMENTS_FILE="requirements.${PROJECT}.build.ubuntu20.04.system"
 
 ARG ADORE_IF_ROS_MSG_TAG=latest
+ARG ADORE_IF_ROS_TAG=latest
+ARG ADORE_IF_ROS_SCHEDULING_TAG=latest
 ARG LIBADORE_TAG=latest
 ARG PLOTLABLIB_TAG=latest
 ARG V2X_IF_ROS_MSG_TAG=latest
@@ -9,6 +11,8 @@ ARG ADORE_V2X_SIM_TAG=latest
 
 FROM carlasim/carla:0.9.13 AS carlasim_carla
 FROM adore_if_ros_msg:${ADORE_IF_ROS_MSG_TAG} AS adore_if_ros_msg
+FROM adore_if_ros:${ADORE_IF_ROS_TAG} AS adore_if_ros
+FROM adore_if_ros_scheduling:${ADORE_IF_ROS_SCHEDULING_TAG} AS adore_if_ros_scheduling
 FROM libadore:${LIBADORE_TAG} AS libadore
 FROM plotlablib:${PLOTLABLIB_TAG} AS plotlablib
 FROM libzmq:latest AS libzmq
@@ -50,6 +54,32 @@ ARG LIB=adore_if_ros_msg
 COPY --from=adore_if_ros_msg /tmp/${LIB} /tmp/${LIB}
 WORKDIR /tmp/${LIB}/${LIB}/build
 RUN cmake --install . --prefix ${INSTALL_PREFIX}
+
+
+ARG LIB=adore_if_ros
+COPY --from=adore_if_ros /tmp/${LIB} /tmp/${LIB}
+SHELL ["/bin/bash", "-c"]
+WORKDIR /tmp/${LIB}/${LIB}/build
+RUN source /opt/ros/noetic/setup.bash && \
+    cmake .. > /dev/null 2>&1 || true && \
+    cmake --install . --prefix ${INSTALL_PREFIX}
+
+ARG LIB=adore_if_ros_scheduling
+COPY --from=adore_if_ros_scheduling /tmp/${LIB} /tmp/${LIB}
+COPY --from=adore_if_ros_scheduling /tmp/lib_adore_scheduling /tmp/lib_adore_scheduling
+COPY --from=adore_if_ros_scheduling /tmp/adore_if_ros_scheduling_msg /tmp/adore_if_ros_scheduling_msg
+SHELL ["/bin/bash", "-c"]
+WORKDIR /tmp/${LIB}/${LIB}/build
+RUN source /opt/ros/noetic/setup.bash && \
+    cmake --install . --prefix ${INSTALL_PREFIX}
+WORKDIR /tmp/adore_if_ros_scheduling_msg/adore_if_ros_scheduling_msg/build
+RUN source /opt/ros/noetic/setup.bash && \
+    cmake --install . --prefix ${INSTALL_PREFIX}
+WORKDIR /tmp/lib_adore_scheduling/lib_adore_scheduling/build
+RUN source /opt/ros/noetic/setup.bash && \
+    cmake --install . --prefix ${INSTALL_PREFIX}
+
+
 
 COPY --from=v2x_if_ros_msg /tmp/v2x_if_ros_msg /tmp/v2x_if_ros_msg
 WORKDIR /tmp/v2x_if_ros_msg/v2x_if_ros_msg/build

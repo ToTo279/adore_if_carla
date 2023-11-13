@@ -18,3 +18,14 @@ libzmqpp4
 
 xterm
 
+libkrb5-dev
+libsodium23
+git-all
+
+autoconf
+automake
+libtool
+ssh
+
+
+libeigen3-dev
