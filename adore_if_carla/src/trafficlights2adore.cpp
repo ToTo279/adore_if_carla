@@ -69,7 +69,7 @@ namespace adore
         public:
             Trafficlights2Adore() : lv_(false)
             {
-                // lv_ = adore::env::ThreeLaneViewDecoupled();
+                //lv_ = adore::env::ThreeLaneViewDecoupled();
             }
 
             /*TO DO:
@@ -85,12 +85,14 @@ namespace adore
                 // Although the application has no periodically called functions, the rate is required for scheduling
                 // ros::init(argc, argv, nodename);
 
+                //kann nicht instanziert werden, vor init
                 Baseapp::init(argc, argv, rate, nodename);
                 Baseapp::initSim();
                 FactoryCollection::init(getRosNodeHandle());
                 std::cout << "FactoryCollection init aufgerufen" << std::endl;
                 // n_ = n;
                 // ros::NodeHandle* n_ = ros::NodeHandle();
+                //adore::env::ThreeLaneViewDecoupled lv_;
 
                 lv_ = adore::env::ThreeLaneViewDecoupled();
                 std::cout << "lv_ init" << std::endl;
@@ -468,6 +470,11 @@ int main(int argc, char **argv)
     // std::cout<<"FactoryCollection init aufgerufen"<<std::endl;
     /*PlotTrafficLightTriggerVolumes ptltv;
     ptltv.run();*/
+
+    /*Baseapp::init(argc, argv, 10.0, "trafficlights2adore");
+    Baseapp::initSim();
+    FactoryCollection::init(getRosNodeHandle());*/
+    std::cout << "in main" << std::endl;
 
     adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
     std::cout << "trafficlights2adore instanziert" << std::endl;
