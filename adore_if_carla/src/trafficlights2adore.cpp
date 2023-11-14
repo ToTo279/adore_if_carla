@@ -67,7 +67,7 @@ namespace adore
         class Trafficlights2Adore : public adore::if_ROS::FactoryCollection, public adore_if_ros_scheduling::Baseapp
         {
         public:
-            Trafficlights2Adore() : lv_(false)
+            Trafficlights2Adore() //: lv_(false)
             {
                 //lv_ = adore::env::ThreeLaneViewDecoupled();
             }
@@ -84,6 +84,7 @@ namespace adore
             {
                 // Although the application has no periodically called functions, the rate is required for scheduling
                 // ros::init(argc, argv, nodename);
+                n_ = new ros::NodeHandle();
 
                 //kann nicht instanziert werden, vor init
                 Baseapp::init(argc, argv, rate, nodename);
@@ -91,10 +92,10 @@ namespace adore
                 FactoryCollection::init(getRosNodeHandle());
                 std::cout << "FactoryCollection init aufgerufen" << std::endl;
                 // n_ = n;
-                // ros::NodeHandle* n_ = ros::NodeHandle();
+                
                 //adore::env::ThreeLaneViewDecoupled lv_;
 
-                lv_ = adore::env::ThreeLaneViewDecoupled();
+                lv_ = new adore::env::ThreeLaneViewDecoupled();
                 std::cout << "lv_ init" << std::endl;
 
                 // Baseapp::initSim();
@@ -138,7 +139,7 @@ namespace adore
             // double t_;
             // nav_msgs::Odometry vehicle_position;
             double vehicle_alpha, vehicle_x, vehicle_y;
-            adore::env::ThreeLaneViewDecoupled lv_; /**<lane-based representation of environment*/
+            adore::env::ThreeLaneViewDecoupled *lv_; /**<lane-based representation of environment*/
 
             ros::Timer timer_;
 
@@ -193,8 +194,8 @@ namespace adore
             }
             void periodic_run(const ros::TimerEvent &te)
             {
-                std::cout << "periodic_run aufgerufen" << std::endl;
-                lv_.update();
+                //std::cout << "periodic_run aufgerufen" << std::endl;
+                lv_->update();
                 isVehicleInTriggerVolume();
             }
             /*double getTime()
@@ -438,15 +439,16 @@ namespace adore
                     {
                         double triggerVolume_s, triggerVolume_n, vehicle_s, vehicle_n;
 
-                        lv_.getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
-                        lv_.getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
+                        lv_->getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
+                        lv_->getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
 
                         double distance = std::abs(triggerVolume_s - vehicle_s);
 
                         if (range <= distance)
                         {
-                            // if (n >= lv_.getCurrentLane().getLeftBorders()->getBorders(s) && n <= lv_.getCurrentLane().getRightBorders()->getBorders(s))
-                            if (vehicle_n >= lv_.getCurrentLane()->getOffsetOfLeftBorder(triggerVolume_s) && vehicle_n <= lv_.getCurrentLane()->getOffsetOfRightBorder(triggerVolume_s))
+                            //if (vehicle_n >= lv_->getCurrentLane()->getLeftBorders()->getBorders(triggerVolume_s) && vehicle_n <= lv_->getCurrentLane()->getRightBorders()->getBorders(triggerVolume_s))
+                            if (vehicle_n >= lv_->getCurrentLane()->getOffsetOfLeftBorder(triggerVolume_s) && vehicle_n <= lv_->getCurrentLane()->getOffsetOfRightBorder(triggerVolume_s))
+                            //if (vehicle_n >= lv_->getLeftBorders()->getBorders(triggerVolume_s) && vehicle_n <= lv_->getRightBorders()->getBorders(triggerVolume_s))
                             {
                                 std::cout << "Punkt in Reichweite und innerhalb der Lane" << std::endl;
                                 return true;
@@ -464,7 +466,7 @@ namespace adore
 
 int main(int argc, char **argv)
 {
-
+    ros::init(argc, argv, "trafficlights2adore");
     // ros::NodeHandle* n_ = new ros::NodeHandle();
     // FactoryCollection::init(getRosNodeHandle());
     // std::cout<<"FactoryCollection init aufgerufen"<<std::endl;
