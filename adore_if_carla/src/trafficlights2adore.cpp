@@ -444,10 +444,11 @@ namespace adore
 
                         double distance = std::abs(triggerVolume_s - vehicle_s);
 
-                        if (range <= distance)
+                        if (range >= distance)
                         {
+                            std::cout<<"range >= distance erfüllt"<<std::endl;
                             //if (vehicle_n >= lv_->getCurrentLane()->getLeftBorders()->getBorders(triggerVolume_s) && vehicle_n <= lv_->getCurrentLane()->getRightBorders()->getBorders(triggerVolume_s))
-                            if (vehicle_n >= lv_->getCurrentLane()->getOffsetOfLeftBorder(triggerVolume_s) && vehicle_n <= lv_->getCurrentLane()->getOffsetOfRightBorder(triggerVolume_s))
+                            if (triggerVolume_n <= lv_->getCurrentLane()->getOffsetOfLeftBorder(triggerVolume_s) && triggerVolume_n >= lv_->getCurrentLane()->getOffsetOfRightBorder(triggerVolume_s))
                             //if (vehicle_n >= lv_->getLeftBorders()->getBorders(triggerVolume_s) && vehicle_n <= lv_->getRightBorders()->getBorders(triggerVolume_s))
                             {
                                 std::cout << "Punkt in Reichweite und innerhalb der Lane" << std::endl;
