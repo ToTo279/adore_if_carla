@@ -206,4 +206,8 @@ public:
             std::cout<<"run"<<std::endl;
         }
     }
+    std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> getPoints()
+    {
+        return points;
+    }
 };

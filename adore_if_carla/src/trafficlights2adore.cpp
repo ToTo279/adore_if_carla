@@ -110,6 +110,7 @@ namespace adore
                 initROSConnections();
                 std::cout << "init ros connection aufgerufen" << std::endl;
                 // getConnections();
+                receivePoints();
             }
 
             void run()
@@ -144,6 +145,7 @@ namespace adore
             ros::Timer timer_;
 
             PlotTrafficLightTriggerVolumes plt_;
+            std::unordered_map<unsigned int,std::unordered_map<unsigned int,PlotTrafficLightTriggerVolumes::pair>> points;
 
             /*struct CarlaTrafficLightStatus
             {
@@ -316,6 +318,10 @@ namespace adore
                     }
                 }
             }*/
+            void receivePoints()
+            {
+                points = PlotTrafficLightTriggerVolumes::getPoints();
+            }
 
             void sendDirect()
             {
@@ -435,14 +441,17 @@ namespace adore
                 for (const auto &entry : plt_.points)
                 {
                     const std::unordered_map<unsigned int, PlotTrafficLightTriggerVolumes::pair> &innerMap = entry.second;
-                    for (const auto &entry_ : innerMap)
+                    //std::cout<<entry.second<<std::endl;
+                    //for (const auto &entry_ : innerMap)
+                    for (const auto &ent: innerMap)
                     {
                         double triggerVolume_s, triggerVolume_n, vehicle_s, vehicle_n;
 
-                        lv_->getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
+                        lv_->getCurrentLane()->toRelativeCoordinates(ent.second.x, ent.second.y, triggerVolume_s, triggerVolume_n);
                         lv_->getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
 
                         double distance = std::abs(triggerVolume_s - vehicle_s);
+                        std::cout<<"TriggerVolume: "<<triggerVolume_s<<"    Vehicle: "<<vehicle_s<<std::endl;
 
                         if (range >= distance)
                         {
