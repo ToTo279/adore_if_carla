@@ -208,6 +208,7 @@ public:
     }
     std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> getPoints()
     {
+        PointsInTriggerVolume();
         return points;
     }
 };

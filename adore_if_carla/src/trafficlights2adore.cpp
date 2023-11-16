@@ -17,10 +17,6 @@
 #include <cstdlib>
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
-// #include <std_msgs/Float64.h>
-// #include <rosgraph_msgs/Clock.h>
-
-#include <dsrc_v2_mapem_pdu_descriptions/MAPEM.h>
 #include <dsrc_v2_spatem_pdu_descriptions/SPATEM.h>
 // #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <vector>
@@ -320,7 +316,8 @@ namespace adore
             }*/
             void receivePoints()
             {
-                points = PlotTrafficLightTriggerVolumes::getPoints();
+                points = plt_.PlotTrafficLightTriggerVolumes::getPoints();
+                std::cout<<"receivePoints"<<std::endl;
             }
 
             void sendDirect()
@@ -438,16 +435,16 @@ namespace adore
             float range = 150;
             bool isVehicleInTriggerVolume()
             {
-                for (const auto &entry : plt_.points)
+                for (const auto &entry : points)
                 {
                     const std::unordered_map<unsigned int, PlotTrafficLightTriggerVolumes::pair> &innerMap = entry.second;
-                    //std::cout<<entry.second<<std::endl;
-                    //for (const auto &entry_ : innerMap)
-                    for (const auto &ent: innerMap)
+                    std::cout<<"in erster for-Schhleife"<<std::endl;
+                    for (const auto &entry_: innerMap)
                     {
+                        std::cout<<"in zweiter for-Schhleife"<<std::endl;
                         double triggerVolume_s, triggerVolume_n, vehicle_s, vehicle_n;
 
-                        lv_->getCurrentLane()->toRelativeCoordinates(ent.second.x, ent.second.y, triggerVolume_s, triggerVolume_n);
+                        lv_->getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
                         lv_->getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
 
                         double distance = std::abs(triggerVolume_s - vehicle_s);
