@@ -146,11 +146,7 @@ private:
     }
 
 
-    void periodic_run(const ros::TimerEvent &te)
-    {
-        plot_triggger_volumes();
-        PointsInTriggerVolume();
-    }
+    
 
 public:
     struct pair
@@ -195,8 +191,8 @@ public:
         //initROSConnections();
         //getConnections();
         
-        timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&PlotTrafficLightTriggerVolumes::periodic_run, this, std::placeholders::_1));
-        std::cout<<"init aufgerufen"<<std::endl;
+        //timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&PlotTrafficLightTriggerVolumes::periodic_run, this, std::placeholders::_1));
+        //std::cout<<"init aufgerufen"<<std::endl;
     }
     void run()
     {
@@ -205,6 +201,12 @@ public:
             ros::spin();
             std::cout<<"run"<<std::endl;
         }
+    }
+    void periodic_run()//(const ros::TimerEvent &te)
+    {
+        std::cout << "periodic_run aufgerufen" << std::endl;
+        plot_triggger_volumes();
+        PointsInTriggerVolume();
     }
     std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> getPoints()
     {

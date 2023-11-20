@@ -1,48 +1,40 @@
 
 #include <adore_if_carla/plot_trafficlighttriggervolumes.h>
 
-
+#include <adore_if_ros/factorycollection.h>
+#include <adore_if_ros_scheduling/baseapp.h>
 
 namespace adore
 {
   namespace adore_if_carla
   {  
-    class PlotTrafficLightTriggerVolumesNode //: public FactoryCollection, public adore_if_ros_scheduling::Baseapp
+    class PlotTrafficLightTriggerVolumesNode : public adore::if_ROS::FactoryCollection, public adore_if_ros_scheduling::Baseapp
     {
       public:
       //adore::apps::PlotEgo* app_;
       PlotTrafficLightTriggerVolumesNode(){}
-      /*void setPicture(std::string value)
+      ~PlotTrafficLightTriggerVolumesNode()
       {
-        app_->setPicture(value);
-      }*/
-      /*void init(int argc, char **argv, double rate, std::string nodename)
+        delete ptl_;
+      }
+
+      PlotTrafficLightTriggerVolumes* ptl_;
+
+      void init(int argc, char **argv, double rate, std::string nodename)
       {
-        //Baseapp::init(argc, argv, rate, nodename);
-        //Baseapp::initSim();
-        //FactoryCollection::init(getRosNodeHandle());
-        ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
-
-        DLR_TS::PlotLab::FigureStubFactory fig_factory;
-        auto figure = fig_factory.createFigureStub(2);
-        figure->show();
-        //int simulationID = 0;
-        //getParam("simulationID",simulationID);
-
-        /*int followMode = 0;
-        getParam("plotoptions/followMode",followMode);
-
- 
-        std::stringstream ss;
-        ss<<"v"<<simulationID<<"/";
-        app_ = new adore::apps::PlotEgo(figure,ss.str(),followMode);
-        app_->setMapFigure(fig_factory.createFigureStub(1));
-        std::function<void()> run_fcn(std::bind(&adore::apps::PlotEgo::run,app_));
-        Baseapp::addTimerCallback(run_fcn);*/
-      //}
+        Baseapp::init(argc, argv, rate, nodename);
+        Baseapp::initSim();
+        FactoryCollection::init(getRosNodeHandle());
+        ptl_ = new PlotTrafficLightTriggerVolumes();
+        // timer callbacks
+        std::function<void()> run_fcn(std::bind(&PlotTrafficLightTriggerVolumes::periodic_run, ptl_));
+        Baseapp::addTimerCallback(run_fcn);
+      }
     };
   }
 }
+
+adore::adore_if_carla::PlotTrafficLightTriggerVolumesNode ptltvn_;
 
 /*int main(int argc,char **argv)
 {
@@ -61,15 +53,15 @@ namespace adore
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
-        
-
-
+    /*ros::init(argc, argv, "plot_traffic_light_trigger_volumes");
     PlotTrafficLightTriggerVolumes ptltv;
     std::cout<<"Instz erzeugt"<<std::endl;
     ptltv.init(argc, argv, 10, "plot_traffic_light_trigger_volumes");
     //std::cout<<"init erzeugt"<<std::endl;
     //ptltv.init();
     //timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&PlotTrafficLightTriggerVolumes::periodic_run, this, std::placeholders::_1));
-    ptltv.run();
+    ptltv.run();*/
+    ptltvn_.init(argc, argv, 10.0, "adore_plot_planning_details_node");
+    ptltvn_.run();
+    return 0;
 }

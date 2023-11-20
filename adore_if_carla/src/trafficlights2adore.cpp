@@ -67,6 +67,10 @@ namespace adore
             {
                 //lv_ = adore::env::ThreeLaneViewDecoupled();
             }
+            ~Trafficlights2Adore()
+            {
+                delete plt_;
+            }
 
             /*TO DO:
             3 lanes view im konstruktor instanzieren (threelaneview)
@@ -88,11 +92,14 @@ namespace adore
                 FactoryCollection::init(getRosNodeHandle());
                 std::cout << "FactoryCollection init aufgerufen" << std::endl;
                 // n_ = n;
+                plt_ = new PlotTrafficLightTriggerVolumes;
                 
                 //adore::env::ThreeLaneViewDecoupled lv_;
 
                 lv_ = new adore::env::ThreeLaneViewDecoupled();
                 std::cout << "lv_ init" << std::endl;
+                adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
+                std::cout << "trafficlights2adore instanziert" << std::endl;
 
                 // Baseapp::initSim();
                 // initSim();
@@ -100,13 +107,17 @@ namespace adore
                 /*bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
                 std::cout << "Objects2Adore: namespace of the carla vehicle is: "
                           << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;*/
-                std::cout << "in init" << std::endl;
+                /*std::cout << "in init" << std::endl;
                 timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&Trafficlights2Adore::periodic_run, this, std::placeholders::_1));
-                std::cout << "timer created" << std::endl;
+                std::cout << "timer created" << std::endl;*/
+                std::function<void()> run_fcn(std::bind(&Trafficlights2Adore::periodic_run, trafficlights2adore));
+                Baseapp::addTimerCallback(run_fcn);
+                std::cout << "timer erstellt" << std::endl;
                 initROSConnections();
                 std::cout << "init ros connection aufgerufen" << std::endl;
                 // getConnections();
                 receivePoints();
+                std::cout << "receivePoints()" << std::endl;
             }
 
             void run()
@@ -140,7 +151,7 @@ namespace adore
 
             ros::Timer timer_;
 
-            PlotTrafficLightTriggerVolumes plt_;
+            PlotTrafficLightTriggerVolumes* plt_;
             std::unordered_map<unsigned int,std::unordered_map<unsigned int,PlotTrafficLightTriggerVolumes::pair>> points;
 
             /*struct CarlaTrafficLightStatus
@@ -190,9 +201,9 @@ namespace adore
                 publisher_direct_ = getRosNodeHandle()->advertise<adore_if_ros_msg::TCDConnectionStateTrace>("ENV/tcd", 500, true);
                 std::cout << "publisher init" << std::endl;
             }
-            void periodic_run(const ros::TimerEvent &te)
+            void periodic_run()//(const ros::TimerEvent &te)
             {
-                //std::cout << "periodic_run aufgerufen" << std::endl;
+                std::cout << "periodic_run aufgerufen" << std::endl;
                 lv_->update();
                 isVehicleInTriggerVolume();
             }
@@ -316,7 +327,8 @@ namespace adore
             }*/
             void receivePoints()
             {
-                points = plt_.PlotTrafficLightTriggerVolumes::getPoints();
+                ///points = plt_.PlotTrafficLightTriggerVolumes->getPoints();
+                points = plt_->getPoints();
                 std::cout<<"receivePoints"<<std::endl;
             }
 
@@ -470,6 +482,8 @@ namespace adore
         };
     } // namespace adore_if_carla
 } // namespace adore
+
+//adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
 
 int main(int argc, char **argv)
 {

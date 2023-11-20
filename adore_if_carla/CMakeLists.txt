@@ -163,7 +163,11 @@ target_link_libraries(trafficlights2adore_node
 
 add_executable(plot_trafficlighttriggervolumes_node)
 target_sources(plot_trafficlighttriggervolumes_node PRIVATE src/plot_trafficlighttriggervolumes.cpp)
-target_include_directories(plot_trafficlighttriggervolumes_node PRIVATE include ${catkin_INCLUDE_DIRS})
+target_include_directories(plot_trafficlighttriggervolumes_node
+                        PRIVATE
+                        include
+                        ${catkin_INCLUDE_DIRS}
+                        ${adore_if_ros_INCLUDE_DIRS})
 target_link_libraries(plot_trafficlighttriggervolumes_node
                         PRIVATE
                           ${catkin_LIBRARIES}
