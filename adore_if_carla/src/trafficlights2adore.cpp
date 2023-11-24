@@ -98,8 +98,8 @@ namespace adore
 
                 lv_ = new adore::env::ThreeLaneViewDecoupled();
                 std::cout << "lv_ init" << std::endl;
-                adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
-                std::cout << "trafficlights2adore instanziert" << std::endl;
+                //adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
+                //std::cout << "trafficlights2adore instanziert" << std::endl;
 
                 // Baseapp::initSim();
                 // initSim();
@@ -110,7 +110,8 @@ namespace adore
                 /*std::cout << "in init" << std::endl;
                 timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&Trafficlights2Adore::periodic_run, this, std::placeholders::_1));
                 std::cout << "timer created" << std::endl;*/
-                std::function<void()> run_fcn(std::bind(&Trafficlights2Adore::periodic_run, trafficlights2adore));
+                std::function<void()> run_fcn(std::bind(&Trafficlights2Adore::periodic_run, this));
+                std::cout << "run fcn erstellt" << std::endl;
                 Baseapp::addTimerCallback(run_fcn);
                 std::cout << "timer erstellt" << std::endl;
                 initROSConnections();
@@ -124,7 +125,10 @@ namespace adore
             {
                 while (n_->ok())
                 {
+                    std::cout << "run aufgerufen" << std::endl;
                     ros::spin();
+                    lv_->update();
+                    isVehicleInTriggerVolume();
                 }
             }
 
@@ -328,6 +332,7 @@ namespace adore
             void receivePoints()
             {
                 ///points = plt_.PlotTrafficLightTriggerVolumes->getPoints();
+                plt_->PointsInTriggerVolume();
                 points = plt_->getPoints();
                 std::cout<<"receivePoints"<<std::endl;
             }
@@ -447,6 +452,10 @@ namespace adore
             float range = 150;
             bool isVehicleInTriggerVolume()
             {
+                if (points.empty())
+                {
+                    std::cout << "points ist leer." << std::endl;
+                }
                 for (const auto &entry : points)
                 {
                     const std::unordered_map<unsigned int, PlotTrafficLightTriggerVolumes::pair> &innerMap = entry.second;
