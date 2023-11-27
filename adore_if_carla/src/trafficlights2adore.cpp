@@ -100,6 +100,10 @@ namespace adore
                 std::cout << "lv_ init" << std::endl;
                 //adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
                 //std::cout << "trafficlights2adore instanziert" << std::endl;
+                initROSConnections();
+                std::cout << "init ros connection aufgerufen" << std::endl;
+                receivePoints();
+                std::cout << "receivePoints()" << std::endl;
 
                 // Baseapp::initSim();
                 // initSim();
@@ -114,11 +118,10 @@ namespace adore
                 std::cout << "run fcn erstellt" << std::endl;
                 Baseapp::addTimerCallback(run_fcn);
                 std::cout << "timer erstellt" << std::endl;
-                initROSConnections();
-                std::cout << "init ros connection aufgerufen" << std::endl;
+                
                 // getConnections();
-                receivePoints();
-                std::cout << "receivePoints()" << std::endl;
+                //receivePoints();
+                //std::cout << "receivePoints()" << std::endl;
             }
 
             void run()
@@ -335,6 +338,10 @@ namespace adore
                 plt_->PointsInTriggerVolume();
                 points = plt_->getPoints();
                 std::cout<<"receivePoints"<<std::endl;
+                if (points.empty())
+                {
+                    std::cout << "points ist leer." << std::endl;
+                }
             }
 
             void sendDirect()
