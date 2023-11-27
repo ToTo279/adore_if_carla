@@ -24,10 +24,15 @@ private:
         double length;
         double alpha;
     };
+    struct pair
+    {
+        double x;
+        double y;
+    };
     
     
     std::unordered_map<unsigned int,std::string> status_to_style_;
-    //std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
+    std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
     std::unordered_map<unsigned int,int> id_to_status_;
 
 	std::string prefix_;
@@ -69,17 +74,8 @@ private:
             volume.width = carla_traffic_light_info.trigger_volume.size.y;
             volume.length = carla_traffic_light_info.trigger_volume.size.x;
 
-            /*double half_width = 0.5 * carla_traffic_light_info.trigger_volume.size.x;
-            double half_length = 0.5 * carla_traffic_light_info.trigger_volume.size.y;
-
-            volume.width = std::abs(carla_traffic_light_info.trigger_volume.size.x * std::cos(volume.alpha)) + std::abs(carla_traffic_light_info.trigger_volume.size.y * std::sin(volume.alpha));
-            volume.length = std::abs(carla_traffic_light_info.trigger_volume.size.x * std::sin(volume.alpha)) + std::abs(carla_traffic_light_info.trigger_volume.size.y * std::cos(volume.alpha));*/
-            
-            //std::cout<<"volume befüllt"<<std::endl;
             id_to_triggervolume_[carla_traffic_light_info.id] = volume;
-            //std::cout<<"id_to_triggervolume_ befüllt"<<std::endl;
 
-            //std::cout<<"receive_tl_info_list fuer"<< carla_traffic_light_info.id<<"wurde mit Winkel: "<<volume.alpha<<" aufgerufen"<<std::endl;
         }
     }
 
@@ -113,12 +109,6 @@ private:
     
 
 public:
-    struct pair
-        {
-            double x;
-            double y;
-        };
-    std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
     //std::unordered_map<unsigned int,std::vector<pair>[4]> points;
     std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> points;
     PlotTrafficLightTriggerVolumes()
@@ -172,11 +162,11 @@ public:
         plot_triggger_volumes();
         PointsInTriggerVolume();
     }
-    std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> getPoints()
+    /*std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> getPoints()
     {
         PointsInTriggerVolume();
         return points;
-    }
+    }*/
     void PointsInTriggerVolume()
     {
         for (const auto& entry : id_to_triggervolume_)

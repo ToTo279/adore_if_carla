@@ -39,7 +39,7 @@
 
 // #include <plotlablib/plcommands.h>
 // #include <plotlablib/afigurestub.h>
-#include <adore_if_carla/plot_trafficlighttriggervolumes.h>
+//#include <adore_if_carla/plot_trafficlighttriggervolumes.h>
 #include <adore/env/threelaneviewdecoupled.h>
 
 #include <adore_if_ros/factorycollection.h>
@@ -63,14 +63,9 @@ namespace adore
         class Trafficlights2Adore : public adore::if_ROS::FactoryCollection, public adore_if_ros_scheduling::Baseapp
         {
         public:
-            Trafficlights2Adore() //: lv_(false)
-            {
-                //lv_ = adore::env::ThreeLaneViewDecoupled();
-            }
-            ~Trafficlights2Adore()
-            {
-                delete plt_;
-            }
+            Trafficlights2Adore() {}
+            ~Trafficlights2Adore() {}
+
 
             /*TO DO:
             3 lanes view im konstruktor instanzieren (threelaneview)
@@ -85,43 +80,25 @@ namespace adore
                 // Although the application has no periodically called functions, the rate is required for scheduling
                 // ros::init(argc, argv, nodename);
                 n_ = new ros::NodeHandle();
-
-                //kann nicht instanziert werden, vor init
                 Baseapp::init(argc, argv, rate, nodename);
                 Baseapp::initSim();
                 FactoryCollection::init(getRosNodeHandle());
                 std::cout << "FactoryCollection init aufgerufen" << std::endl;
-                // n_ = n;
-                plt_ = new PlotTrafficLightTriggerVolumes;
-                
-                //adore::env::ThreeLaneViewDecoupled lv_;
 
                 lv_ = new adore::env::ThreeLaneViewDecoupled();
                 std::cout << "lv_ init" << std::endl;
-                //adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
-                //std::cout << "trafficlights2adore instanziert" << std::endl;
+
                 initROSConnections();
                 std::cout << "init ros connection aufgerufen" << std::endl;
-                receivePoints();
-                std::cout << "receivePoints()" << std::endl;
+                PointsInTriggerVolume();
+                std::cout << "PointsInTriggerVolume aufgerufen" << std::endl;
 
-                // Baseapp::initSim();
-                // initSim();
-                // NOTWENDIG???
-                /*bool carla_namespace_specified = n_->getParam("PARAMS/adore_if_carla/carla_namespace", namespace_carla_);
-                std::cout << "Objects2Adore: namespace of the carla vehicle is: "
-                          << (carla_namespace_specified ? namespace_carla_ : "NOT SPECIFIED") << std::endl;*/
-                /*std::cout << "in init" << std::endl;
-                timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&Trafficlights2Adore::periodic_run, this, std::placeholders::_1));
+                /*timer_ = n_->createTimer(ros::Duration(1 / rate), std::bind(&Trafficlights2Adore::periodic_run, this, std::placeholders::_1));
                 std::cout << "timer created" << std::endl;*/
                 std::function<void()> run_fcn(std::bind(&Trafficlights2Adore::periodic_run, this));
                 std::cout << "run fcn erstellt" << std::endl;
                 Baseapp::addTimerCallback(run_fcn);
                 std::cout << "timer erstellt" << std::endl;
-                
-                // getConnections();
-                //receivePoints();
-                //std::cout << "receivePoints()" << std::endl;
             }
 
             void run()
@@ -136,19 +113,32 @@ namespace adore
             }
 
         private:
+            struct triggervolume
+            {
+                double center_x;
+                double center_y;
+                double width;
+                double length;
+                double alpha;
+            };
+            struct pair
+            {
+                double x;
+                double y;
+            };
             ros::Publisher publisher_spatem_sim_;
             ros::Publisher publisher_mapem_sim_;
             ros::Publisher publisher_spatem_;
             ros::Publisher publisher_mapem_;
             ros::Publisher publisher_direct_;
             ros::Subscriber subscriber_traffic_lights_status_;
-            // ros::Subscriber subscriber_traffic_lights_info_;
+            ros::Subscriber subscriber_traffic_lights_info_;
             ros::Subscriber subscriber_vehicle_localization_;
 
             std::string namespace_carla_;
             ros::NodeHandle *n_;
 
-            std::multimap<uint32_t, adore_if_ros_msg::Connection_<std::allocator<void>>> Connections;
+            //std::multimap<uint32_t, adore_if_ros_msg::Connection_<std::allocator<void>>> Connections;
             Betriebsmodus betriebsmodus = DIRECT;
             int discard_age = 1; // in [sec]
             // double t_;
@@ -158,8 +148,8 @@ namespace adore
 
             ros::Timer timer_;
 
-            PlotTrafficLightTriggerVolumes* plt_;
-            std::unordered_map<unsigned int,std::unordered_map<unsigned int,PlotTrafficLightTriggerVolumes::pair>> points;
+            std::unordered_map<unsigned int,triggervolume> id_to_triggervolume_;
+            std::unordered_map<unsigned int,std::unordered_map<unsigned int,pair>> points;
 
             /*struct CarlaTrafficLightStatus
             {
@@ -196,8 +186,8 @@ namespace adore
                 subscriber_traffic_lights_status_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightStatusList>(
                     "/carla/traffic_lights/status", 1, &Trafficlights2Adore::receiveTrafficLightsStatusList, this);
                 std::cout << "subscriber_traffic_lights_status_ init" << std::endl;
-                /*subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
-                    "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receiveTrafficLightsInfoList, this);*/
+                subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
+                    "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receive_tl_info_list, this);
                 subscriber_vehicle_localization_ = getRosNodeHandle()->subscribe<nav_msgs::Odometry>(
                     "/vehicle0/localization", 1, &Trafficlights2Adore::receiveVehicleLocalization, this);
                 std::cout << "subscriber_vehicle_localization_ init" << std::endl;
@@ -318,37 +308,75 @@ namespace adore
 
                     traffic_lights_info.push_back(info);
                 }
-            }
-
-            void receiveTrafficLightsInfo(carla_msgs::CarlaTrafficLightInfo carla_traffic_light_info_)
-            {
-                for (int i = 0; i < traffic_lights_info.size(); ++i)
-                {
-                    if (traffic_lights_info[i].id == carla_traffic_light_info_.id)
-                    {
-                        traffic_lights_info[i].transform = carla_traffic_light_info_.transform;
-                        traffic_lights_info[i].trigger_volume = carla_traffic_light_info_.trigger_volume;
-                        break;
-                    }
-                }
             }*/
-            void receivePoints()
+
+            void receive_tl_info_list(carla_msgs::CarlaTrafficLightInfoList carla_traffic_light_info_list_)
             {
-                ///points = plt_.PlotTrafficLightTriggerVolumes->getPoints();
-                plt_->PointsInTriggerVolume();
+                id_to_triggervolume_.clear();
+                std::cout<<"receive_tl_info_list cleared"<<std::endl;
+
+
+                for (const auto& carla_traffic_light_info : carla_traffic_light_info_list_.traffic_lights)
+                {
+                    triggervolume volume;
+
+                    double siny_cosp = 2 * (carla_traffic_light_info.transform.orientation.w * carla_traffic_light_info.transform.orientation.z + carla_traffic_light_info.transform.orientation.x * carla_traffic_light_info.transform.orientation.y);
+                    double cosy_cosp = 1 - 2 * (carla_traffic_light_info.transform.orientation.y * carla_traffic_light_info.transform.orientation.y + carla_traffic_light_info.transform.orientation.z * carla_traffic_light_info.transform.orientation.z);
+                    volume.alpha = std::atan2(siny_cosp, cosy_cosp);
+                    tf::Quaternion q(carla_traffic_light_info.transform.orientation.x, carla_traffic_light_info.transform.orientation.y, carla_traffic_light_info.transform.orientation.z, carla_traffic_light_info.transform.orientation.w);
+                    tf::Vector3 v(carla_traffic_light_info.transform.position.x, carla_traffic_light_info.transform.position.y, carla_traffic_light_info.transform.position.z);
+                    tf::Vector3 v_center(carla_traffic_light_info.trigger_volume.center.x, carla_traffic_light_info.trigger_volume.center.y, carla_traffic_light_info.trigger_volume.center.z);
+                    tf::Transform t(q,v);
+                    tf::Vector3 v_operator;
+                    v_operator = t(v_center);
+
+                    volume.center_x = v_operator.x();
+                    volume.center_y = v_operator.y();
+                    volume.width = carla_traffic_light_info.trigger_volume.size.y;
+                    volume.length = carla_traffic_light_info.trigger_volume.size.x;
+
+                    id_to_triggervolume_[carla_traffic_light_info.id] = volume;
+
+                }
+            }
+            /*void receivePoints()
+            {
+
                 points = plt_->getPoints();
                 std::cout<<"receivePoints"<<std::endl;
                 if (points.empty())
                 {
                     std::cout << "points ist leer." << std::endl;
                 }
+            }*/
+            void PointsInTriggerVolume()
+            {
+                for (const auto& entry : id_to_triggervolume_)
+                {
+                    pair p1 , p2 , p3 , p4;
+
+                    p1.x = entry.second.center_x + (entry.second.length / 2) * std::cos(entry.second.alpha);
+                    p1.y = entry.second.center_y + (entry.second.length / 2) * std::sin(entry.second.alpha);
+                    p2.x = entry.second.center_x + (entry.second.length * 1/6) * std::cos(entry.second.alpha);
+                    p2.y = entry.second.center_y + (entry.second.length * 1/6) * std::sin(entry.second.alpha);
+                    p3.x = entry.second.center_x - (entry.second.length / 2) * std::cos(entry.second.alpha);
+                    p3.y = entry.second.center_y - (entry.second.length / 2) * std::sin(entry.second.alpha);
+                    p4.x = entry.second.center_x - (entry.second.length * 1/6) * std::cos(entry.second.alpha);
+                    p4.y = entry.second.center_y - (entry.second.length * 1/6) * std::sin(entry.second.alpha);
+
+                    points[entry.first][0] = p1;
+                    points[entry.first][1] = p2;
+                    points[entry.first][2] = p3;
+                    points[entry.first][3] = p4;
+                }
+
             }
 
             void sendDirect()
             {
                 adore_if_ros_msg::TCDConnectionStateTrace out_msg;
 
-                for (const auto &entry : Connections)
+                /*for (const auto &entry : Connections)
                 {
                     uint32_t targetAmpelID = entry.first;
                     const adore_if_ros_msg::Connection_<std::allocator<void>> &connection = entry.second;
@@ -368,7 +396,7 @@ namespace adore
                     }
                     out_msg.data.push_back(newState);
                     publisher_direct_.publish(out_msg);
-                }
+                }*/
             }
 
             void sendSPATEMSim()
@@ -465,7 +493,7 @@ namespace adore
                 }
                 for (const auto &entry : points)
                 {
-                    const std::unordered_map<unsigned int, PlotTrafficLightTriggerVolumes::pair> &innerMap = entry.second;
+                    const std::unordered_map<unsigned int, pair> &innerMap = entry.second;
                     std::cout<<"in erster for-Schhleife"<<std::endl;
                     for (const auto &entry_: innerMap)
                     {
