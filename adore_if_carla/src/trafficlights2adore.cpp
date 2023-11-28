@@ -63,7 +63,8 @@ namespace adore
         class Trafficlights2Adore : public adore::if_ROS::FactoryCollection, public adore_if_ros_scheduling::Baseapp
         {
         public:
-            Trafficlights2Adore() {}
+            Trafficlights2Adore()//: lv_(false) 
+            {}
             ~Trafficlights2Adore() {}
 
 
@@ -85,7 +86,7 @@ namespace adore
                 FactoryCollection::init(getRosNodeHandle());
                 std::cout << "FactoryCollection init aufgerufen" << std::endl;
 
-                lv_ = new adore::env::ThreeLaneViewDecoupled();
+                lv_ = new adore::env::ThreeLaneViewDecoupled(false);
                 std::cout << "lv_ init" << std::endl;
 
                 initROSConnections();
@@ -132,7 +133,8 @@ namespace adore
             ros::Publisher publisher_mapem_;
             ros::Publisher publisher_direct_;
             ros::Subscriber subscriber_traffic_lights_status_;
-            ros::Subscriber subscriber_traffic_lights_info_;
+            ros::Subscriber subscriber_tl_info_list;
+            //ros::Subscriber subscriber_traffic_lights_info_;
             ros::Subscriber subscriber_vehicle_localization_;
 
             std::string namespace_carla_;
@@ -144,7 +146,7 @@ namespace adore
             // double t_;
             // nav_msgs::Odometry vehicle_position;
             double vehicle_alpha, vehicle_x, vehicle_y;
-            adore::env::ThreeLaneViewDecoupled *lv_; /**<lane-based representation of environment*/
+            adore::env::ThreeLaneViewDecoupled* lv_; /**<lane-based representation of environment*/
 
             ros::Timer timer_;
 
@@ -186,8 +188,9 @@ namespace adore
                 subscriber_traffic_lights_status_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightStatusList>(
                     "/carla/traffic_lights/status", 1, &Trafficlights2Adore::receiveTrafficLightsStatusList, this);
                 std::cout << "subscriber_traffic_lights_status_ init" << std::endl;
-                subscriber_traffic_lights_info_ = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
+                subscriber_tl_info_list = getRosNodeHandle()->subscribe<carla_msgs::CarlaTrafficLightInfoList>(
                     "/carla/traffic_lights/info", 1, &Trafficlights2Adore::receive_tl_info_list, this);
+                //subscriber_tl_info_list = n_->subscribe<carla_msgs::CarlaTrafficLightInfoList>("/carla/traffic_lights/info", 1, &PlotTrafficLightTriggerVolumes::receive_tl_info_list, this);
                 subscriber_vehicle_localization_ = getRosNodeHandle()->subscribe<nav_msgs::Odometry>(
                     "/vehicle0/localization", 1, &Trafficlights2Adore::receiveVehicleLocalization, this);
                 std::cout << "subscriber_vehicle_localization_ init" << std::endl;
@@ -202,6 +205,7 @@ namespace adore
             {
                 std::cout << "periodic_run aufgerufen" << std::endl;
                 lv_->update();
+                PointsInTriggerVolume();
                 isVehicleInTriggerVolume();
             }
             /*double getTime()
@@ -338,6 +342,11 @@ namespace adore
                     id_to_triggervolume_[carla_traffic_light_info.id] = volume;
 
                 }
+                std::cout << "receive_tl_info_list aufgerufen" << std::endl;
+                if (id_to_triggervolume_.empty())
+                {
+                    std::cout << "id_to_triggervolume_ ist leer." << std::endl;
+                }
             }
             /*void receivePoints()
             {
@@ -369,7 +378,11 @@ namespace adore
                     points[entry.first][2] = p3;
                     points[entry.first][3] = p4;
                 }
-
+                std::cout << "PointsInTriggerVolume aufgerufen" << std::endl;
+                if (points.empty())
+                {
+                    std::cout << "points ist leer." << std::endl;
+                }
             }
 
             void sendDirect()
@@ -478,11 +491,11 @@ namespace adore
                     //const unsigned int id = entry.first
                     for (const auto& entry_ : innerMap)
                     {
-                        lv_.getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, s[entry.first][entry_.first], n[entry.first][entry_.first]);
+                        lv_->getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, s[entry.first][entry_.first], n[entry.first][entry_.first]);
                     }
-                    //lv_.toRelativeCoordinates(entry.second, x_replan.getY(), s.at(entry.first), n.at(entry.first));
+                    //lv_->toRelativeCoordinates(entry.second, x_replan.getY(), s.at(entry.first), n.at(entry.first));
                 }
-                //lv_.toRelativeCoordinates(x_replan.getX(), x_replan.getY(), s, n);
+                //lv_->toRelativeCoordinates(x_replan.getX(), x_replan.getY(), s, n);
             }*/
             float range = 150;
             bool isVehicleInTriggerVolume()
@@ -502,6 +515,7 @@ namespace adore
 
                         lv_->getCurrentLane()->toRelativeCoordinates(entry_.second.x, entry_.second.y, triggerVolume_s, triggerVolume_n);
                         lv_->getCurrentLane()->toRelativeCoordinates(vehicle_x, vehicle_y, vehicle_s, vehicle_n);
+                        std::cout<<"toRelativeCoordinates aufgerufen"<<std::endl;
 
                         double distance = std::abs(triggerVolume_s - vehicle_s);
                         std::cout<<"TriggerVolume: "<<triggerVolume_s<<"    Vehicle: "<<vehicle_s<<std::endl;
@@ -516,6 +530,7 @@ namespace adore
                                 std::cout << "Punkt in Reichweite und innerhalb der Lane" << std::endl;
                                 return true;
                             } //.currentlane().getleftborder(s_triggerVolume)
+                            std::cout<<"getOffsetOfLeftBorder aufgerufen"<<std::endl;
                         }
                     }
                 }
@@ -542,6 +557,10 @@ int main(int argc, char **argv)
     Baseapp::initSim();
     FactoryCollection::init(getRosNodeHandle());*/
     std::cout << "in main" << std::endl;
+    /*n_ = new ros::NodeHandle();
+    Baseapp::init(argc, argv, 10.0, "trafficlights2adore");
+    Baseapp::initSim();
+    FactoryCollection::init(getRosNodeHandle());*/
 
     adore::adore_if_carla::Trafficlights2Adore trafficlights2adore;
     std::cout << "trafficlights2adore instanziert" << std::endl;
